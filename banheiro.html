@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Gestão de sala - Sala de aula</title>
+    <meta name="description" content="Organize as idas ao banheiro de forma justa e eficiente na sua sala de aula.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Biblioteca para ler Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+                <a href="chaves.html" class="nav-link">Gestão de Chaves 🔑</a>
+                <a href="supervisao.html" class="nav-link">Dashboard Supervisão →</a>
+            </div>
+            <h1>Gestão de sala</h1>
+            <div class="room-config">
+                <select id="room-name" title="Selecione o nome da sala">
+                    <option value="" disabled selected>Selecione a Sala</option>
+                    <option value="Sala 01">Sala 01</option>
+                    <option value="Sala 02">Sala 02</option>
+                    <option value="Sala 03">Sala 03</option>
+                    <option value="Sala 04">Sala 04</option>
+                    <option value="Sala 05">Sala 05</option>
+                    <option value="Sala 06">Sala 06</option>
+                    <option value="Sala 07">Sala 07</option>
+                    <option value="Sala 08">Sala 08</option>
+                    <option value="Sala 09">Sala 09</option>
+                    <option value="Sala 10">Sala 10</option>
+                    <option value="Sala 11">Sala 11</option>
+                    <option value="Sala 12">Sala 12</option>
+                    <option value="Sala 13">Sala 13</option>
+                    <option value="Sala 14">Sala 14</option>
+                </select>
+                <button id="btn-reset-room" class="btn-danger-outline">Zerar Sala</button>
+            </div>
+        </header>
+
+        <!-- Container Dinâmico de Avisos da Psicologia -->
+        <div id="psico-alerts" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem; width:100%;"></div>
+
+        <main class="dashboard-grid">
+            <!-- Coluna da Esquerda: Fila de Espera -->
+            <section class="card glass queue-section">
+                <h2><span class="icon">⏳</span> Fila de espera</h2>
+                <div id="queue-list" class="list-container">
+                    <!-- Fila será preenchida via JS -->
+                    <p class="empty-msg">Ninguém na fila</p>
+                </div>
+            </section>
+
+            <!-- Coluna Central: No Banheiro -->
+            <section class="card glass current-section">
+                <h2><span class="icon">🏫</span> Fora da sala agora</h2>
+                <div id="current-occupant" class="occupant-container">
+                    <div class="empty-state">
+                        <p>Todos os alunos em sala</p>
+                        <button id="btn-next" class="btn-primary" disabled>Chamar Próximo</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Coluna da Direita: Lista de Alunos -->
+            <section class="card glass students-section">
+                <div class="card-header-column">
+                    <div class="header-with-action" style="margin-bottom: 1rem;">
+                        <h2><span class="icon">👥</span> Alunos</h2>
+                        <button id="btn-add-student" class="btn-icon" title="Adicionar Aluno" style="width: 40px; height: 40px; border-radius: 12px; font-size: 1.5rem;">+</button>
+                    </div>
+                    
+                    <div class="action-buttons-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                        <button id="btn-send-psico-modal" class="btn-action-premium" style="--btn-color: #ec4899; background: rgba(236, 72, 153, 0.05); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.2);">
+                            <span>🧠</span> Psicologia
+                        </button>
+                        <button id="btn-open-ti-modal" class="btn-action-premium" style="--btn-color: #3b82f6; background: rgba(59, 130, 246, 0.05); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <span>🛠️</span> Suporte TI
+                        </button>
+                        <button id="btn-import-excel" class="btn-action-premium" style="grid-column: span 2; --btn-color: var(--text-muted); background: var(--secondary); color: var(--text-muted); border: 1px solid var(--border-color);">
+                            <span>📥</span> Importar Lista Excel
+                        </button>
+                    </div>
+                    <input type="file" id="file-import" accept=".xlsx, .xls" style="display: none;">
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="student-search" placeholder="Buscar aluno...">
+                </div>
+                <div id="student-list" class="list-container">
+                    <!-- Lista de alunos via JS -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Modal para Adicionar Aluno -->
+        <div id="modal-add" class="modal">
+            <div class="modal-content glass">
+                <h3>Adicionar novo aluno</h3>
+                <input type="text" id="new-student-name" placeholder="Nome do aluno">
+                <div class="modal-actions">
+                    <button id="btn-cancel" class="btn-secondary">Cancelar</button>
+                    <button id="btn-save" class="btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Encaminhar para Psicologia -->
+        <div id="modal-send-psico" class="modal">
+            <div class="modal-content glass">
+                <h3 style="color:var(--warning); margin-bottom:1rem;">Encaminhar para Psicologia</h3>
+                <div class="form-group" style="text-align:left;">
+                    <label>Selecione o Aluno</label>
+                    <select id="psico-send-student-select" class="form-control" style="width:100%; margin-bottom:1rem; padding:0.5rem;"></select>
+                    <label>Motivo do Encaminhamento</label>
+                    <textarea id="psico-send-reason" rows="2" style="width:100%; border-radius:8px; padding:0.5rem; border:1px solid var(--border-color);"></textarea>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button id="btn-cancel-psico-send" class="btn-secondary">Cancelar</button>
+                    <button id="btn-confirm-psico-send" class="btn-primary">Encaminhar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Chamado TI -->
+        <div id="modal-ti" class="modal">
+            <div class="modal-content glass">
+                <h3 style="color:var(--primary); margin-bottom:1rem;">Solicitar Suporte TI</h3>
+                <div class="form-group" style="text-align:left;">
+                    <label>Descreva brevemente o problema</label>
+                    <textarea id="ti-problem-desc" rows="3" style="width:100%; border-radius:8px; padding:0.5rem; border:1px solid var(--border-color);" placeholder="Ex: Projetor não liga, Internet lenta..."></textarea>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button id="btn-cancel-ti" class="btn-secondary">Cancelar</button>
+                    <button id="btn-confirm-ti" class="btn-primary">Abrir Chamado</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Firebase SDK (Compat Version para maior compatibilidade) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

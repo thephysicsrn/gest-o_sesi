@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>IA Docente - SESI Escola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .ai-portal-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .ai-hero-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 32px;
+            box-shadow: var(--glass-shadow);
+            max-width: 600px;
+            width: 100%;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .ai-icon-large {
+            font-size: 5rem;
+            background: rgba(139, 92, 246, 0.1);
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #10b981;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-launch-ai {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(109, 40, 217, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-launch-ai:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(109, 40, 217, 0.4);
+        }
+
+        .ai-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: left;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+            </div>
+            <h1>IA Docente</h1>
+            <p>Seu assistente inteligente sempre disponível</p>
+        </header>
+
+        <main class="ai-portal-container">
+            <div class="ai-hero-card">
+                <div class="ai-icon-large">🤖</div>
+                <div class="ai-status">
+                    <div class="status-dot"></div>
+                    Sistema Online e Pronto
+                </div>
+                <h2 style="color: var(--primary); font-size: 1.8rem;">Como posso ajudar hoje?</h2>
+                <p style="color: var(--text-muted);">Clique no botão abaixo para abrir a interface de conversa com a inteligência artificial do SESI.</p>
+                
+                <a href="#" id="launch-ai-link" target="_blank" class="btn-launch-ai">
+                    <span>✨</span> Iniciar Assistente IA
+                </a>
+
+                <div class="ai-features">
+                    <div class="feature-item">✅ Apoio Pedagógico</div>
+                    <div class="feature-item">✅ Sugestões de Aula</div>
+                    <div class="feature-item">✅ Dúvidas do Sistema</div>
+                    <div class="feature-item">✅ Em tempo real</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

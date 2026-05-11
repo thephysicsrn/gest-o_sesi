@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Painel Admin - SESI Escola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+        .admin-content { display: none; }
+        .admin-content.active { display: block; }
+        
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .config-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+        .config-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-add-inline {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .btn-add-inline input { flex: 1; }
+        
+        .danger-zone {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+            </div>
+            <h1>Configurações do Sistema</h1>
+            <p>Gerencie salas, usuários e segurança</p>
+        </header>
+
+        <!-- Login do Admin -->
+        <div id="admin-login" class="admin-login-container">
+            <div class="card glass" style="max-width: 400px; width: 100%;">
+                <h2>Acesso Restrito</h2>
+                <p style="margin-bottom: 1.5rem;">Insira a Senha Mestra para continuar</p>
+                <input type="password" id="admin-password-input" placeholder="Senha Mestra" style="width: 100%; margin-bottom: 1rem;">
+                <button id="btn-admin-login" class="btn-primary" style="width: 100%;">Entrar</button>
+            </div>
+        </div>
+
+        <!-- Conteúdo do Admin -->
+        <div id="admin-main" class="admin-content">
+            <div class="admin-grid">
+                <!-- Gestão de Salas -->
+                <section class="card glass">
+                    <h2><span class="icon">🏫</span> Gerenciar Salas</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Adicione ou remova as salas do sistema.</p>
+                    <div id="admin-rooms-list" class="config-list">
+                        <!-- JS -->
+                    </div>
+                    <div class="btn-add-inline">
+                        <input type="text" id="new-room-input" placeholder="Ex: 6º Ano B">
+                        <button id="btn-add-room" class="btn-primary">Add</button>
+                    </div>
+                </section>
+
+                <!-- Gestão de Supervisoras -->
+                <section class="card glass">
+                    <h2><span class="icon">👩‍🏫</span> Supervisoras (Pedagógico)</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Nomes e senhas de assinatura.</p>
+                    <div id="admin-sups-list" class="config-list">
+                        <!-- JS -->
+                    </div>
+                    <div class="btn-add-inline">
+                        <input type="text" id="new-sup-name" placeholder="Nome">
+                        <input type="text" id="new-sup-pass" placeholder="Senha" style="width: 80px;">
+                        <button id="btn-add-sup" class="btn-primary">Add</button>
+                    </div>
+                </section>
+
+                <!-- Gestão de Psicólogas -->
+                <section class="card glass">
+                    <h2><span class="icon">🧠</span> Psicólogas</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Nomes e senhas de atendimento.</p>
+                    <div id="admin-psico-list" class="config-list">
+                        <!-- JS -->
+                    </div>
+                    <div class="btn-add-inline">
+                        <input type="text" id="new-psico-name" placeholder="Nome">
+                        <input type="text" id="new-psico-pass" placeholder="Senha" style="width: 80px;">
+                        <button id="btn-add-psico" class="btn-primary">Add</button>
+                    </div>
+                </section>
+
+                <!-- Configurações de IA -->
+                <section class="card glass">
+                    <h2><span class="icon">🤖</span> Configurações de IA</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Configure o link do Chat n8n da IA Docente.</p>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>URL do Webhook/Chat n8n</label>
+                        <input type="text" id="ai-n8n-url" placeholder="https://n8n.seu-dominio.com/webhook/..." style="width: 100%;">
+                        <button id="btn-save-ai-config" class="btn-primary" style="margin-top: 1rem; width: 100%;">Salvar Link da IA</button>
+                    </div>
+                </section>
+
+                <!-- Segurança e Senha Mestra -->
+                <section class="card glass danger-zone">
+                    <h2><span class="icon">🔐</span> Segurança</h2>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-size: 0.8rem; margin-bottom: 0.5rem;">Alterar Senha Mestra</label>
+                        <div class="btn-add-inline">
+                            <input type="password" id="new-master-pass" placeholder="Nova Senha Mestra">
+                            <button id="btn-update-master" class="btn-primary">Salvar</button>
+                        </div>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label style="font-size: 0.8rem;">Limpeza de Dados (Requer Senha)</label>
+                        <button id="btn-clear-banheiro" class="btn-danger-outline">Zerar Histórico de Banheiros</button>
+                        <button id="btn-clear-chaves" class="btn-danger-outline">Zerar Histórico de Chaves</button>
+                        <button id="btn-clear-pedagogico" class="btn-danger-outline">Zerar Histórico Pedagógico</button>
+                        <hr style="border: 0; border-top: 1px solid rgba(239, 68, 68, 0.2); margin: 0.5rem 0;">
+                        <button id="btn-clear-global" class="btn-danger-outline" style="background: rgba(239, 68, 68, 0.1); border-width: 2px;">Limpar TODOS os Históricos</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

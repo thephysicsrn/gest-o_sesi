@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Suporte Técnico - SESI Gestão</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+            </div>
+            <h1>Suporte técnico</h1>
+            <p>Reporte erros, problemas ou sugestões para o desenvolvedor</p>
+        </header>
+
+        <main style="max-width: 600px; margin: 0 auto;">
+            <section class="card glass">
+                <h2><span class="icon">💬</span> Enviar Mensagem</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    Sua mensagem será enviada diretamente para o e-mail do administrador do sistema.
+                </p>
+                
+                <div class="form-group">
+                    <label>Assunto</label>
+                    <input type="text" id="support-subject" placeholder="Ex: Erro ao registrar aluno, Sugestão de melhoria">
+                </div>
+                
+                <div class="form-group">
+                    <label>Mensagem Detalhada</label>
+                    <textarea id="support-message" style="width: 100%; min-height: 150px; padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color); font-family: inherit; font-size: 1rem; resize: vertical;" placeholder="Descreva o que aconteceu ou sua ideia..."></textarea>
+                </div>
+
+                <button id="btn-send-support" class="btn-primary" style="width: 100%; margin-top: 1rem; background: linear-gradient(to right, var(--accent), #059669); border: none;">
+                    Enviar para o Desenvolvedor 🚀
+                </button>
+            </section>
+
+            <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.85rem;">
+                <p>E-mail direto: <strong>mateussilva@rn.sesi.org.br</strong></p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

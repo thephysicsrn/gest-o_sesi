@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Agendamento de Espaços - SESI Escola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .week-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .week-dates {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        .table-scroll {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+            background: white;
+        }
+        .timetable th, .timetable td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .timetable th {
+            background: #f8fafc;
+            color: var(--primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            padding: 1rem;
+        }
+        .time-col {
+            font-weight: 700;
+            color: var(--text-muted);
+            background: #f8fafc;
+            font-size: 0.85rem;
+            width: 120px;
+        }
+        .slot-cell {
+            height: 60px;
+            padding: 0.25rem !important;
+        }
+        .slot-btn {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+        }
+        .slot-free {
+            background: rgba(16, 185, 129, 0.05);
+            color: var(--accent);
+            border: 1px dashed var(--accent);
+        }
+        .slot-free:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .slot-occupied {
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+            border: 1px solid transparent;
+        }
+        .slot-occupied:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+        .shift-title {
+            margin: 2rem 0 1rem 0;
+            color: var(--primary);
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+            </div>
+            <h1>Agendamento digital</h1>
+            
+            <div class="room-config" style="margin-top: 1.5rem;">
+                <select id="space-select" title="Selecione o espaço">
+                    <option value="Quadra">Quadra</option>
+                    <option value="Laboratório de Informática">Laboratório de Informática</option>
+                    <option value="Laboratório Multidisciplinar">Laboratório Multidisciplinar</option>
+                </select>
+            </div>
+        </header>
+
+        <main>
+            <div class="week-nav">
+                <button class="btn-secondary" id="btn-prev-week">← Semana Anterior</button>
+                <div class="week-dates" id="week-display">Carregando...</div>
+                <button class="btn-primary" id="btn-next-week">Próxima Semana →</button>
+            </div>
+
+            <section class="card glass">
+                <h2 class="shift-title">Turno Matutino</h2>
+                <div class="table-scroll">
+                    <table class="timetable">
+                        <thead>
+                            <tr id="matutino-headers">
+                                <th>Horário / Data</th>
+                                <th>Segunda</th>
+                                <th>Terça</th>
+                                <th>Quarta</th>
+                                <th>Quinta</th>
+                                <th>Sexta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matutino-body">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 class="shift-title">Turno Vespertino</h2>
+                <div class="table-scroll">
+                    <table class="timetable">
+                        <thead>
+                            <tr id="vespertino-headers">
+                                <th>Horário / Data</th>
+                                <th>Segunda</th>
+                                <th>Terça</th>
+                                <th>Quarta</th>
+                                <th>Quinta</th>
+                                <th>Sexta</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vespertino-body">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

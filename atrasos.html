@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Atrasos - SESI Gestão escolar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+            </div>
+            <h1>Registro de atrasos</h1>
+            <p>Controle de entrada tardia de alunos</p>
+        </header>
+
+        <main class="management-grid">
+            <!-- Coluna Esquerda: Cadastro -->
+            <section class="card glass">
+                <h2><span class="icon">⌚</span> Novo registro</h2>
+                <div class="form-group">
+                    <label>Nome completo do aluno</label>
+                    <input type="text" id="atraso-aluno" placeholder="Nome do aluno">
+
+                    <label>Turma</label>
+                    <select id="atraso-turma" class="custom-select">
+                        <option value="">Selecione a turma...</option>
+                        <!-- Preenchido via app.js -->
+                    </select>
+
+                    <label>Horário de chegada</label>
+                    <input type="time" id="atraso-horario">
+
+                    <button id="btn-save-atraso" class="btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                        Registrar Atraso
+                    </button>
+                </div>
+            </section>
+
+            <!-- Coluna Direita: Histórico -->
+            <div>
+                <section class="card glass">
+                    <div class="header-with-action">
+                        <h2><span class="icon">📜</span> Histórico de hoje</h2>
+                        <button class="btn-secondary" id="btn-export-atrasos" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">📊 Exportar Excel</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Horário</th>
+                                    <th>Aluno</th>
+                                    <th>Turma</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="atrasos-table-body">
+                                <!-- Preenchido via app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Modal Exportação -->
+    <div id="modal-export-atrasos" class="modal">
+        <div class="modal-content glass" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Exportar Atrasos</h2>
+                <button class="close-modal" onclick="this.closest('.modal').classList.remove('active')">&times;</button>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label>Data Inicial</label>
+                <input type="date" id="export-atraso-inicio">
+                
+                <label style="margin-top: 1rem; display: block;">Data Final</label>
+                <input type="date" id="export-atraso-fim">
+            </div>
+            <button class="btn-primary" id="btn-atrasos-export-confirm" style="width: 100%; margin-top: 1.5rem;">
+                Baixar Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase e Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

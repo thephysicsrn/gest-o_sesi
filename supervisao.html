@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Supervisão - Gestão de Sala</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+                <a href="banheiro.html" class="nav-link">← Voltar para Sala</a>
+                <a href="chaves.html" class="nav-link">Gestão de Chaves 🔑</a>
+            </div>
+            <h1>Painel de supervisão</h1>
+            <p>Monitoramento global e histórico por turnos</p>
+        </header>
+
+        <main class="supervision-grid">
+            <section class="card glass" id="saidas-section">
+                <h2><span class="icon">🏃</span> Liberação Antecipada (Saída)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    Registre a saída antecipada do aluno com assinatura digital.
+                </p>
+                <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Nome do Aluno</label>
+                        <input type="text" id="saida-aluno" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Turma</label>
+                        <select id="saida-turma-select">
+                            <option value="">Selecione a turma...</option>
+                            <!-- Preenchido via app.js -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Responsável Confirmou</label>
+                        <input type="text" id="saida-responsavel" placeholder="Ex: Pai, Mãe, Avó">
+                    </div>
+                    <div class="form-group">
+                        <label>Data da Saída</label>
+                        <input type="date" id="saida-data">
+                    </div>
+                </div>
+                <button id="btn-registrar-saida" class="btn-primary" style="width: 100%; background: linear-gradient(to right, #8b5cf6, #7c3aed); border: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);">
+                    Registrar Saída com Assinatura Digital
+                </button>
+            </section>
+
+            <section class="card glass">
+                <div class="header-with-action">
+                    <h2><span class="icon">📜</span> Histórico de Idas</h2>
+                    <button id="btn-clear-global" class="btn-danger-outline">Limpar Tudo</button>
+                </div>
+                
+                <div class="history-tabs">
+                    <button class="tab-btn active" data-shift="Todos" onclick="switchTab(this)">Todos</button>
+                    <button class="tab-btn" data-shift="Matutino" onclick="switchTab(this)">Matutino</button>
+                    <button class="tab-btn" data-shift="Vespertino" onclick="switchTab(this)">Vespertino</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Sala</th>
+                                <th>Aluno</th>
+                                <th>Horário</th>
+                                <th>Turno</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-list">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section class="card glass" id="atrasos-alerts-section" style="display: none;">
+                <div class="header-with-action">
+                    <h2><span class="icon">⚠️</span> Alertas de Atrasos Recorrentes</h2>
+                    <button id="btn-clear-atrasos-alerts" class="btn-secondary" style="font-size: 0.7rem;">Limpar Alertas</button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.85rem;">
+                    Alunos que atingiram o limite de 3 atrasos.
+                </p>
+                <div id="atrasos-alerts-list" class="alerts-container">
+                    <!-- Preenchido via app.js -->
+                </div>
+            </section>
+
+
+            <section class="card glass">
+                <h2><span class="icon">💾</span> Backup do Sistema</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    Salve todos os dados (salas, alunos, chaves e histórico) para evitar perda de informações.
+                </p>
+                <div class="modal-actions" style="justify-content: flex-start;">
+                    <button id="btn-export-backup" class="btn-primary">Exportar Backup (.json)</button>
+                    <button id="btn-import-trigger" class="btn-secondary">Importar Backup</button>
+                    <input type="file" id="file-import-backup" accept=".json" style="display: none;">
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

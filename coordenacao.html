@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Painel da Coordenação - SESI Escola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Biblioteca para exportar Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        .ped-card {
+            border-left: 5px solid var(--warning);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .ped-card.attended {
+            border-left-color: var(--accent);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .prof-tag {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .reason-text {
+            font-style: italic;
+            color: var(--text-muted);
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+                <a href="pedagogico.html" class="nav-link">Encaminhar aluno</a>
+                <button id="btn-export-ped-modal" class="btn-action"
+                    style="background: var(--accent); color: white; border: none;">📊 Exportar Excel</button>
+                <button id="btn-clear-ped" class="btn-action"
+                    style="color: var(--danger); border-color: var(--danger);">Limpar Registros</button>
+            </div>
+            <h1>Painel da Coordenação</h1>
+            <p>Atendimento pedagógico e resolução de pendências</p>
+        </header>
+
+        <main>
+            <section class="card glass">
+                <h2><span class="icon">⏳</span> Alunos aguardando atendimento</h2>
+                <div id="coord-pending-list" class="management-grid"
+                    style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+                    <!-- Preenchido via JS -->
+                    <p class="empty-msg">Nenhum aluno aguardando no momento</p>
+                </div>
+            </section>
+
+            <section class="card glass" style="margin-top: 2rem;">
+                <h2><span class="icon">✅</span> Atendimentos Concluídos (Hoje)</h2>
+                <div class="table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Professor</th>
+                                <th>Horário</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coord-attended-list">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Modal Exportar com Data (Pedagógico) -->
+    <div id="modal-export-ped" class="modal">
+        <div class="modal-content glass" style="max-width:380px;">
+            <h3 style="color:var(--accent); margin-bottom:1.5rem;">📊 Exportar Atendimentos</h3>
+            <div class="form-group">
+                <label>Data Inicial</label>
+                <input type="date" id="ped-export-start" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); margin-bottom:1rem;">
+                <label>Data Final</label>
+                <input type="date" id="ped-export-end" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color);">
+            </div>
+            <div class="modal-actions" style="margin-top:1.5rem;">
+                <button id="btn-ped-export-cancel" class="btn-secondary">Cancelar</button>
+                <button id="btn-ped-export-confirm" class="btn-primary">Baixar Excel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

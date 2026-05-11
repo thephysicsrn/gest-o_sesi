@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo_sesi.png">
+    <title>Psicologia Escolar - SESI Escola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="logo_sesi.png" alt="SESI Escola" class="school-logo" onerror="this.style.display='none'">
+        </div>
+        
+        <header>
+            <div class="nav-group" style="justify-content: space-between;">
+                <a href="index.html" class="btn-secondary" style="text-decoration: none;">← Voltar ao Hub</a>
+                <div style="display:flex; gap:0.75rem;">
+                    <button id="btn-export-psico" class="btn-action" style="background: var(--accent); color: white; border: none;">📊 Exportar Excel</button>
+                    <button id="btn-clear-psico" class="btn-action" style="color: var(--danger); border-color: var(--danger);">Limpar Registros</button>
+                </div>
+            </div>
+            <h1>Psicologia escolar</h1>
+            <p>Chamados e atendimentos em tempo real</p>
+        </header>
+
+        <main>
+            <!-- Painel Superior: Ações e Solicitações -->
+            <div class="management-grid" style="margin-bottom: 2rem;">
+                <section class="card glass">
+                    <h2><span class="icon">📢</span> Chamar Aluno</h2>
+                    <div class="form-group">
+                        <label>Sala de Aula</label>
+                        <select id="psico-room-select" class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Nome do Aluno</label>
+                        <input type="text" id="psico-student-name" placeholder="Digite o nome..." class="form-control" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    </div>
+                    <button id="btn-psico-call" class="btn-primary" style="margin-top: 1.5rem; width: 100%;">Solicitar Liberação</button>
+                </section>
+
+                <section class="card glass">
+                    <h2><span class="icon">⏳</span> Fila e Aguardando Liberação</h2>
+                    <div id="psico-pending-list" class="management-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+                        <!-- JS -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Tabela de Histórico -->
+            <section class="card glass">
+                <h2><span class="icon">✅</span> Atendimentos Concluídos</h2>
+                <div class="table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Sala</th>
+                                <th>Motivo / Descrição</th>
+                                <th>Assinatura</th>
+                                <th>Data e Horário</th>
+                            </tr>
+                        </thead>
+                        <tbody id="psico-history-list">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Modal para preencher motivo e assinar -->
+        <div id="modal-psico-attend" class="modal">
+            <div class="modal-content glass" style="max-width: 400px;">
+                <h3 style="color:var(--primary); margin-bottom:1rem;">Atender Aluno</h3>
+                <p id="psico-attend-student-name" style="font-weight:600; margin-bottom:1rem;"></p>
+                <div class="form-group">
+                    <label>Resumo / Motivo do Atendimento</label>
+                    <textarea id="psico-attend-reason" rows="3" style="width:100%; border-radius:8px; padding:0.5rem; border:1px solid var(--border-color);"></textarea>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button id="btn-psico-cancel-attend" class="btn-secondary">Cancelar</button>
+                    <button id="btn-psico-confirm-attend" class="btn-primary">Assinar e Concluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Exportar com Data (Psicologia) -->
+    <div id="modal-export-psico" class="modal">
+        <div class="modal-content glass" style="max-width:380px;">
+            <h3 style="color:var(--accent); margin-bottom:1.5rem;">📊 Exportar Atendimentos</h3>
+            <div class="form-group">
+                <label>Data Inicial</label>
+                <input type="date" id="psico-export-start" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); margin-bottom:1rem;">
+                <label>Data Final</label>
+                <input type="date" id="psico-export-end" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color);">
+            </div>
+            <div class="modal-actions" style="margin-top:1.5rem;">
+                <button id="btn-psico-export-cancel" class="btn-secondary">Cancelar</button>
+                <button id="btn-psico-export-confirm" class="btn-primary">Baixar Excel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

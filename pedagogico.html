@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <link rel="manifest" href="manifest.json">
+    <title>Encaminhamento pedagógico - SESI Escola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="logo_sesi.png" alt="SESI Escola" class="school-logo">
+            </div>
+            <div class="header-top nav-group">
+                <a href="index.html" class="nav-link">🏠 Início</a>
+                <a href="coordenacao.html" class="nav-link">Coordenação 🔒</a>
+            </div>
+            <h1>Supervisão pedagógica</h1>
+            <p>Encaminhamento de alunos para coordenação</p>
+        </header>
+
+        <main class="management-grid">
+            <!-- Formulário de Encaminhamento -->
+            <section class="card glass">
+                <h2><span class="icon">📝</span> Novo encaminhamento</h2>
+                <div class="form-group">
+                    <label>Professor(a) solicitante</label>
+                    <input type="text" id="ped-prof-name" placeholder="Seu nome completo">
+
+                    <label>Nome do aluno(a)</label>
+                    <input type="text" id="ped-student-name" placeholder="Nome completo do aluno">
+
+                    <label>Motivo do encaminhamento</label>
+                    <textarea id="ped-reason" placeholder="Descreva brevemente o motivo..." rows="4"
+                        style="border-radius: 12px; padding: 0.75rem; border: 1px solid var(--border); font-family: inherit; resize: none;"></textarea>
+
+                    <button id="btn-send-ped" class="btn-primary" style="width: 100%; margin-top: 1rem;">Enviar para
+                        Coordenação</button>
+                </div>
+            </section>
+
+            <!-- Status do Aluno (Visualização para o Professor) -->
+            <section class="card glass">
+                <h2><span class="icon">🔔</span> Status dos meus alunos</h2>
+                <div id="ped-status-list" class="list-container">
+                    <!-- Preenchido via JS -->
+                    <p class="empty-msg">Nenhum aluno encaminhado no momento</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <p>Desenvolvedor Mateus Zeca</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
