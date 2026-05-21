@@ -205,12 +205,14 @@ function showAuthModal(title, desc, onConfirm) {
     inp.onkeyup = (e) => { if(e.key === 'Enter') safeGet('auth-modal-confirm').click(); };
 }
 
+function _authToken(key, secret) { return btoa(key + ':' + secret + ':sesi_gestao'); }
+
 function requestAdminAuth(desc, callback, bypassCache = false) {
-    if (!bypassCache && sessionStorage.getItem('adminAuth') === 'true') return callback();
+    if (!bypassCache && sessionStorage.getItem('adminAuth') === _authToken('admin', sysConfig.adminPassword)) return callback();
     showAuthModal('Acesso Restrito (Admin)', desc || 'Digite a Senha Mestra', (pwd) => {
         if (pwd === sysConfig.adminPassword) { 
             if (!bypassCache) {
-                sessionStorage.setItem('adminAuth', 'true'); 
+                sessionStorage.setItem('adminAuth', _authToken('admin', sysConfig.adminPassword)); 
                 setTimeout(() => sessionStorage.removeItem('adminAuth'), 7200000); 
             }
             callback(); 
@@ -221,25 +223,26 @@ function requestAdminAuth(desc, callback, bypassCache = false) {
 }
 
 function requestSuperAuth(desc, callback) {
-    if (sessionStorage.getItem('superAuth')) return callback(sessionStorage.getItem('superAuth'));
+    const cached = sessionStorage.getItem('superAuth');
+    if (cached) { try { const name = atob(cached).split(':')[1]; if (name) return callback(name); } catch(e) {} sessionStorage.removeItem('superAuth'); }
     showAuthModal('Acesso Restrito (Supervisão)', desc || 'Digite a sua senha de supervisão', (pwd) => {
         const sup = sysConfig.supervisors[pwd?.toLowerCase()];
-        if (sup) { sessionStorage.setItem('superAuth', sup); setTimeout(() => sessionStorage.removeItem('superAuth'), 7200000); callback(sup); } else alert('Senha de supervisão incorreta ou não encontrada.');
+        if (sup) { sessionStorage.setItem('superAuth', _authToken('super', sup)); setTimeout(() => sessionStorage.removeItem('superAuth'), 7200000); callback(sup); } else alert('Senha de supervisão incorreta ou não encontrada.');
     });
 }
 
 function requestPsicoAuth(desc, callback) {
-    if (sessionStorage.getItem('psicoAuth')) return callback(sessionStorage.getItem('psicoAuth'));
+    const cached = sessionStorage.getItem('psicoAuth');
+    if (cached) { try { const name = atob(cached).split(':')[1]; if (name) return callback(name); } catch(e) {} sessionStorage.removeItem('psicoAuth'); }
     showAuthModal('Acesso Restrito (Psicologia)', desc || 'Digite a sua senha de psicóloga', (pwd) => {
         const p = (sysConfig.psychologists || {})[pwd?.toLowerCase()];
-        if (p) { sessionStorage.setItem('psicoAuth', p); setTimeout(() => sessionStorage.removeItem('psicoAuth'), 7200000); callback(p); } else alert('Senha de psicologia incorreta ou não encontrada.');
+        if (p) { sessionStorage.setItem('psicoAuth', _authToken('psico', p)); setTimeout(() => sessionStorage.removeItem('psicoAuth'), 7200000); callback(p); } else alert('Senha de psicologia incorreta ou não encontrada.');
     });
 }
 
 // --- Sincronização em Tempo Real ---
 
-    db.ref('banheiro_config').on('value', snap => { try { if(snap.val()) sysConfig = snap.val(); } catch(e) {} });
-    db.ref('banheiro_saidas_state').on('value', snap => { try { saidasState = snap.val() || { history: [] }; } catch(e) {} });
+    db.ref('banheiro_saidas_state').on('value', snap => { try { const d = snap.val() || { history: [] }; let h = d.history; if (h && !Array.isArray(h)) h = Object.values(h); saidasState = { history: h || [] }; } catch(e) {} });
     db.ref('banheiro_ti_state').on('value', snap => { try { tiState = snap.val() || { tickets: [] }; if(safeGet('list-aberto')) renderTiDashboard(); } catch(e) {} });
     db.ref('banheiro_support_logs').on('value', snap => { /* apenas monitorar se necessário */ });
     db.ref('banheiro_agendamento').on('value', snap => { try { agendamentoState = snap.val() || {}; if (safeGet('space-select')) safeRun(renderAgendamento); } catch(e) {} });
@@ -258,6 +261,7 @@ db.ref('banheiro_atrasos_state').on('value', (snap) => {
 });
 
 const normalizeName = (name) => (name || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
+const escapeAttr = (str) => (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
 db.ref('banheiro_config').on('value', (snapshot) => {
     safeRun(() => {
@@ -473,7 +477,7 @@ function renderRoomSelector() {
     });
 }
 
-function renderAdminRooms() { safeRender('admin-rooms-list', el => { el.innerHTML = sysConfig.rooms.map(r => `<div class="config-item"><span>${r}</span><button class="btn-icon" onclick="adminRemoveRoom('${r}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma sala</p>'; }); }
+function renderAdminRooms() { safeRender('admin-rooms-list', el => { el.innerHTML = sysConfig.rooms.map(r => `<div class="config-item"><span>${r}</span><button class="btn-icon" onclick="adminRemoveRoom('${escapeAttr(r)}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma sala</p>'; }); }
 function renderAdminSups() { safeRender('admin-sups-list', el => { el.innerHTML = Object.entries(sysConfig.supervisors || {}).map(([pass, name]) => `<div class="config-item"><div><strong>${name}</strong> <small style="opacity:0.5">(${pass})</small></div><button class="btn-icon" onclick="adminRemoveSup('${pass}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma supervisora</p>'; }); }
 function renderAdminPsico() { safeRender('admin-psico-list', el => { el.innerHTML = Object.entries(sysConfig.psychologists || {}).map(([pass, name]) => `<div class="config-item"><div><strong>${name}</strong> <small style="opacity:0.5">(${pass})</small></div><button class="btn-icon" onclick="adminRemovePsico('${pass}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma psicóloga</p>'; }); }
 
@@ -486,7 +490,7 @@ function renderStudents() {
         filtered.forEach(s => {
             const inQ = (rs.queue || []).includes(s.id), isC = rs.currentOccupant && rs.currentOccupant.id === s.id;
             const div = document.createElement('div'); div.className = 'item student-item';
-            div.innerHTML = `<div class="student-info">${createAvatar(s.name)}<div><div class="name">${s.name}</div><div class="count">${s.visits || 0} idas</div></div></div><div style="display:flex;gap:0.5rem;align-items:center;">${(!inQ && !isC) ? `<button class="btn-primary btn-sm" onclick="addToQueue('${s.id}')">Fila</button>` : `<span class="status-tag">${isC ? 'No Banheiro' : 'Na Fila'}</span>`}<button class="btn-icon" style="background:transparent;color:#ef4444;border:1px solid #ef4444;width:28px;height:28px;font-size:1.2rem;" title="Excluir Aluno" onclick="removeStudent('${s.id}', '${s.name}')">×</button></div>`;
+            div.innerHTML = `<div class="student-info">${createAvatar(s.name)}<div><div class="name">${s.name}</div><div class="count">${s.visits || 0} idas</div></div></div><div style="display:flex;gap:0.5rem;align-items:center;">${(!inQ && !isC) ? `<button class="btn-primary btn-sm" onclick="addToQueue('${s.id}')">Fila</button>` : `<span class="status-tag">${isC ? 'No Banheiro' : 'Na Fila'}</span>`}<button class="btn-icon" style="background:transparent;color:#ef4444;border:1px solid #ef4444;width:28px;height:28px;font-size:1.2rem;" title="Excluir Aluno" onclick="removeStudent('${s.id}', '${escapeAttr(s.name)}')">×</button></div>`;
             el.appendChild(div);
         });
     });
@@ -1072,7 +1076,7 @@ function renderAgendamento() {
                 currentDates.forEach((d, i) => {
                     const dayIndex = i + 1, key = `${dayIndex}-${time}`, res = weekData[key];
                     if (res) {
-                        row += `<td class="slot-cell"><button class="slot-btn slot-occupied" onclick="cancelSlot('${space}', '${weekId}', '${key}', '${res.prof}')" title="${res.prof}">${res.prof}</button></td>`;
+                        row += `<td class="slot-cell"><button class="slot-btn slot-occupied" onclick="cancelSlot('${escapeAttr(space)}', '${weekId}', '${key}', '${escapeAttr(res.prof)}')" title="${escapeAttr(res.prof)}">${res.prof}</button></td>`;
                     } else {
                         row += `<td class="slot-cell"><button class="slot-btn slot-free" onclick="reserveSlot('${space}', '${weekId}', '${key}')">Livre</button></td>`;
                     }
@@ -1377,6 +1381,32 @@ function initSecondaryPages() {
                 atrasosState.alerts = [];
                 db.ref('banheiro_atrasos_state').set(atrasosState);
             });
+        };
+    }
+
+    // Backup Import
+    safeBind('btn-import-trigger', 'onclick', () => safeGet('file-import-backup')?.click());
+    const backupInput = safeGet('file-import-backup');
+    if (backupInput) {
+        backupInput.onchange = (e) => {
+            const f = e.target.files[0]; if (!f) return;
+            requestAdminAuth('Importar Backup — isso substituirá os dados atuais', () => {
+                const r = new FileReader();
+                r.onload = (evt) => {
+                    try {
+                        const b = JSON.parse(evt.target.result);
+                        const promises = [];
+                        if (b.b) promises.push(db.ref('banheiro_multi_state').set(JSON.parse(b.b)));
+                        if (b.l) { const logs = JSON.parse(b.l); Object.values(logs).forEach(l => db.ref('banheiro_global_log').push(l)); }
+                        if (b.k) promises.push(db.ref('banheiro_keys_state').set(JSON.parse(b.k)));
+                        if (b.p) promises.push(db.ref('banheiro_ped_state').set(JSON.parse(b.p)));
+                        if (b.c) promises.push(db.ref('banheiro_config').set(JSON.parse(b.c)));
+                        Promise.all(promises).then(() => alert('Backup importado com sucesso! A página será recarregada.')).then(() => location.reload());
+                    } catch(err) { alert('Erro ao ler o arquivo de backup: ' + err.message); }
+                };
+                r.readAsText(f);
+            });
+            backupInput.value = ''; // reset para permitir re-importação
         };
     }
 }

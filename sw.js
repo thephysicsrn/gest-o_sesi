@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sesi-gestao-v12';
+const CACHE_NAME = 'sesi-gestao-v13';
 const ASSETS = [
     './',
     './index.html',
