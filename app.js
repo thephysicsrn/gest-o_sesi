@@ -205,10 +205,18 @@ function showAuthModal(title, desc, onConfirm) {
     inp.onkeyup = (e) => { if(e.key === 'Enter') safeGet('auth-modal-confirm').click(); };
 }
 
-function requestAdminAuth(desc, callback) {
-    if (sessionStorage.getItem('adminAuth') === 'true') return callback();
+function requestAdminAuth(desc, callback, bypassCache = false) {
+    if (!bypassCache && sessionStorage.getItem('adminAuth') === 'true') return callback();
     showAuthModal('Acesso Restrito (Admin)', desc || 'Digite a Senha Mestra', (pwd) => {
-        if (pwd === sysConfig.adminPassword) { sessionStorage.setItem('adminAuth', 'true'); setTimeout(() => sessionStorage.removeItem('adminAuth'), 7200000); callback(); } else alert('Senha Mestra incorreta!');
+        if (pwd === sysConfig.adminPassword) { 
+            if (!bypassCache) {
+                sessionStorage.setItem('adminAuth', 'true'); 
+                setTimeout(() => sessionStorage.removeItem('adminAuth'), 7200000); 
+            }
+            callback(); 
+        } else {
+            alert('Senha Mestra incorreta!');
+        }
     });
 }
 
@@ -1095,7 +1103,7 @@ window.cancelSlot = function(space, weekId, timeKey, prof) {
             delete agendamentoState[weekId][space][timeKey];
             db.ref('banheiro_agendamento').set(agendamentoState);
         }
-    });
+    }, true);
 };
 
 // --- Registro de Atrasos ---
