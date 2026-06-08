@@ -1094,19 +1094,17 @@ function renderAgendamento() {
 window.reserveSlot = function(space, weekId, timeKey) {
     const prof = prompt(`Agendar ${space} (${timeKey.split('-')[1]}).\nSeu Nome e Disciplina:`);
     if (prof && prof.trim()) {
-        if (!agendamentoState[weekId]) agendamentoState[weekId] = {};
-        if (!agendamentoState[weekId][space]) agendamentoState[weekId][space] = {};
-        agendamentoState[weekId][space][timeKey] = { prof: prof.trim(), ts: Date.now() };
-        db.ref('banheiro_agendamento').set(agendamentoState);
+        db.ref(`banheiro_agendamento/${weekId}/${space}/${timeKey}`).set({
+            prof: prof.trim(),
+            ts: Date.now()
+        }).catch(err => alert("Erro ao agendar: " + err.message));
     }
 };
 
 window.cancelSlot = function(space, weekId, timeKey, prof) {
     requestAdminAuth(`CANCELAR reserva de "${prof}"?`, () => {
-        if (agendamentoState[weekId] && agendamentoState[weekId][space]) {
-            delete agendamentoState[weekId][space][timeKey];
-            db.ref('banheiro_agendamento').set(agendamentoState);
-        }
+        db.ref(`banheiro_agendamento/${weekId}/${space}/${timeKey}`).remove()
+            .catch(err => alert("Erro ao cancelar: " + err.message));
     }, true);
 };
 
