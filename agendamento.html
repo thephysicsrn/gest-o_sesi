@@ -118,7 +118,6 @@
                     <option value="Quadra">Quadra</option>
                     <option value="Laboratório de Informática">Laboratório de Informática</option>
                     <option value="Laboratório Multidisciplinar">Laboratório Multidisciplinar</option>
-                    <option value="Arena de Robótica">Arena de Robótica</option>
                 </select>
             </div>
         </header>
@@ -170,6 +169,55 @@
                 </div>
             </section>
         </main>
+
+        <!-- Modal Agendar Horário -->
+        <div id="modal-agendar" class="modal">
+            <div class="modal-content glass" style="max-width: 440px;">
+                <h3 style="color:var(--primary); margin-bottom: 0.5rem;" id="modal-agendar-title">📅 Agendar Espaço</h3>
+                <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom: 1.25rem;" id="modal-agendar-subtitle">Preencha os dados do agendamento</p>
+                
+                <div style="background: rgba(30,64,175,0.06); padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.9rem; text-align: left; border: 1px solid rgba(30,64,175,0.12); line-height: 1.6;">
+                    <div><strong>Espaço:</strong> <span id="modal-agendar-space-info">-</span></div>
+                    <div><strong>Data:</strong> <span id="modal-agendar-date-info">-</span></div>
+                    <div><strong>Horário:</strong> <span id="modal-agendar-time-info">-</span></div>
+                </div>
+
+                <div class="form-group" style="text-align:left; margin-bottom: 1rem;">
+                    <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.35rem; color:var(--text-color);">Nome do Professor(a) / Solicitante *</label>
+                    <input type="text" id="agendar-prof-name" placeholder="Ex: Prof. Carlos Silva" style="width:100%; box-sizing:border-box;">
+                </div>
+
+                <div class="form-group" style="text-align:left; margin-bottom: 1.5rem;">
+                    <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.35rem; color:var(--text-color);">Disciplina / Turma / Finalidade (Opcional)</label>
+                    <input type="text" id="agendar-disciplina" placeholder="Ex: Robótica - 9º Ano A" style="width:100%; box-sizing:border-box;">
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-cancel-agendar" class="btn-secondary">Cancelar</button>
+                    <button id="btn-confirm-agendar" class="btn-primary">Salvar Agendamento</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Detalhes / Cancelar Reserva -->
+        <div id="modal-cancelar-agendamento" class="modal">
+            <div class="modal-content glass" style="max-width: 440px;">
+                <h3 style="color:var(--primary); margin-bottom: 0.5rem;">📋 Detalhes da Reserva</h3>
+                
+                <div style="background: rgba(15,23,42,0.04); padding: 1rem; border-radius: 12px; margin: 1.25rem 0; font-size: 0.9rem; text-align: left; border: 1px solid rgba(0,0,0,0.06); line-height: 1.6;">
+                    <div><strong>Espaço:</strong> <span id="modal-cancel-space-info">-</span></div>
+                    <div><strong>Data / Horário:</strong> <span id="modal-cancel-datetime-info">-</span></div>
+                    <div><strong>Responsável:</strong> <span id="modal-cancel-prof-info">-</span></div>
+                    <div id="modal-cancel-disciplina-row" style="display:none;"><strong>Disciplina/Atividade:</strong> <span id="modal-cancel-disciplina-info">-</span></div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;" id="modal-cancel-ts-info"></div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btn-close-modal-cancel" class="btn-secondary">Fechar</button>
+                    <button id="btn-confirm-cancel-slot" class="btn-danger-outline" style="border-color:#ef4444; color:#ef4444;">Cancelar Reserva</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>

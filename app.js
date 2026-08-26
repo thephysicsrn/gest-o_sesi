@@ -168,18 +168,17 @@ let agendamentoState = {};
 let currentWeekOffset = 0;
 let notifiedPsicoCalls = new Set();
 
-const TURMAS_SESI = ["6AM", "6BM", "6AV", "6BV", "7AM", "7BM", "7AV", "7BV", "8AM", "8BM", "8AV", "8BV", "9AM", "9BM", "9AV", "9BV", "1AM", "1BM", "1AV", "1BV", "2AM", "2BM", "2AV", "2BV", "3AM", "3BM", "3AV", "3BV"];
+const defaultTimeSlots = {
+    matutino: ['7:00 às 7:50', '7:50 às 8:40', '8:40 às 9:30', '9:30 às 10:35', '10:35 às 11:25', '11:25 às 12:15'],
+    vespertino: ['13:15 às 14:05', '14:05 às 14:55', '14:55 às 15:45', '15:45 às 16:50', '16:50 às 17:40', '17:40 às 18:30']
+};
 
 let sysConfig = { 
     adminPassword: 'MateusSesi', 
     rooms: ['Sala 01', 'Sala 02', 'Sala 03', 'Sala 04', 'Sala 05', 'Sala 06', 'Sala 07', 'Sala 08', 'Sala 09', 'Sala 10', 'Sala 11', 'Sala 12', 'Sala 13', 'Sala 14'],
     supervisors: { 'claudia': 'Claudia', 'suelma': 'Suelma', 'indhyanne': 'Indhyanne', 'katia': 'Katia' },
     psychologists: {},
-    n8nUrl: '',
-    timeSlots: {
-        matutino: ['7:00 às 7:50', '7:50 às 8:40', '8:40 às 9:30', '9:30 às 10:35', '10:35 às 11:25', '11:25 às 12:15'],
-        vespertino: ['13:15 às 14:05', '14:05 às 14:55', '14:55 às 15:45', '15:45 às 16:50', '16:50 às 17:40', '17:40 às 18:30']
-    }
+    timeSlots: defaultTimeSlots
 };
 
 const safeGet = (id) => document.getElementById(id);
@@ -205,90 +204,61 @@ function showAuthModal(title, desc, onConfirm) {
     inp.onkeyup = (e) => { if(e.key === 'Enter') safeGet('auth-modal-confirm').click(); };
 }
 
-function _authToken(key, secret) { return btoa(key + ':' + secret + ':sesi_gestao'); }
-
-function requestAdminAuth(desc, callback, bypassCache = false) {
-    if (!bypassCache && sessionStorage.getItem('adminAuth') === _authToken('admin', sysConfig.adminPassword)) return callback();
+function requestAdminAuth(desc, callback) {
+    if (sessionStorage.getItem('adminAuth') === 'true') return callback();
     showAuthModal('Acesso Restrito (Admin)', desc || 'Digite a Senha Mestra', (pwd) => {
-        if (pwd === sysConfig.adminPassword) { 
-            if (!bypassCache) {
-                sessionStorage.setItem('adminAuth', _authToken('admin', sysConfig.adminPassword)); 
-                setTimeout(() => sessionStorage.removeItem('adminAuth'), 7200000); 
-            }
-            callback(); 
-        } else {
-            alert('Senha Mestra incorreta!');
-        }
+        if (pwd === sysConfig.adminPassword) { sessionStorage.setItem('adminAuth', 'true'); setTimeout(() => sessionStorage.removeItem('adminAuth'), 7200000); callback(); } else alert('Senha Mestra incorreta!');
     });
 }
 
 function requestSuperAuth(desc, callback) {
-    const cached = sessionStorage.getItem('superAuth');
-    if (cached) { try { const name = atob(cached).split(':')[1]; if (name) return callback(name); } catch(e) {} sessionStorage.removeItem('superAuth'); }
+    if (sessionStorage.getItem('superAuth')) return callback(sessionStorage.getItem('superAuth'));
     showAuthModal('Acesso Restrito (Supervisão)', desc || 'Digite a sua senha de supervisão', (pwd) => {
         const sup = sysConfig.supervisors[pwd?.toLowerCase()];
-        if (sup) { sessionStorage.setItem('superAuth', _authToken('super', sup)); setTimeout(() => sessionStorage.removeItem('superAuth'), 7200000); callback(sup); } else alert('Senha de supervisão incorreta ou não encontrada.');
+        if (sup) { sessionStorage.setItem('superAuth', sup); setTimeout(() => sessionStorage.removeItem('superAuth'), 7200000); callback(sup); } else alert('Senha de supervisão incorreta ou não encontrada.');
     });
 }
 
 function requestPsicoAuth(desc, callback) {
-    const cached = sessionStorage.getItem('psicoAuth');
-    if (cached) { try { const name = atob(cached).split(':')[1]; if (name) return callback(name); } catch(e) {} sessionStorage.removeItem('psicoAuth'); }
+    if (sessionStorage.getItem('psicoAuth')) return callback(sessionStorage.getItem('psicoAuth'));
     showAuthModal('Acesso Restrito (Psicologia)', desc || 'Digite a sua senha de psicóloga', (pwd) => {
         const p = (sysConfig.psychologists || {})[pwd?.toLowerCase()];
-        if (p) { sessionStorage.setItem('psicoAuth', _authToken('psico', p)); setTimeout(() => sessionStorage.removeItem('psicoAuth'), 7200000); callback(p); } else alert('Senha de psicologia incorreta ou não encontrada.');
+        if (p) { sessionStorage.setItem('psicoAuth', p); setTimeout(() => sessionStorage.removeItem('psicoAuth'), 7200000); callback(p); } else alert('Senha de psicologia incorreta ou não encontrada.');
     });
 }
 
 // --- Sincronização em Tempo Real ---
 
-    db.ref('banheiro_saidas_state').on('value', snap => { try { const d = snap.val() || { history: [] }; let h = d.history; if (h && !Array.isArray(h)) h = Object.values(h); saidasState = { history: h || [] }; } catch(e) {} });
-    db.ref('banheiro_ti_state').on('value', snap => { try { tiState = snap.val() || { tickets: [] }; if(safeGet('list-aberto')) renderTiDashboard(); } catch(e) {} });
+    db.ref('banheiro_saidas_state').on('value', snap => { try { saidasState = snap.val() || { history: [] }; } catch(e) {} });
+    db.ref('banheiro_ti_state').on('value', snap => { try { tiState = snap.val() || { tickets: [] }; if(safeGet('list-aberto')) renderTiDashboard(); updateHubStats(); } catch(e) {} });
     db.ref('banheiro_support_logs').on('value', snap => { /* apenas monitorar se necessário */ });
     db.ref('banheiro_agendamento').on('value', snap => { try { agendamentoState = snap.val() || {}; if (safeGet('space-select')) safeRun(renderAgendamento); } catch(e) {} });
 
 db.ref('banheiro_atrasos_state').on('value', (snap) => {
     safeRun(() => {
         const d = snap.val() || { logs: [], alerts: [] };
-        // Firebase pode retornar arrays como objetos
-        let logs = d.logs;
-        if (logs && !Array.isArray(logs)) logs = Object.values(logs);
-        let alerts = d.alerts;
-        if (alerts && !Array.isArray(alerts)) alerts = Object.values(alerts);
-        atrasosState = { logs: logs || [], alerts: alerts || [] };
+        atrasosState = d;
         renderAtrasosTable(); renderSupervisaoAtrasosAlerts();
     });
 });
 
 const normalizeName = (name) => (name || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
-const escapeAttr = (str) => (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
 db.ref('banheiro_config').on('value', (snapshot) => {
     safeRun(() => {
         const data = snapshot.val();
         if (data) {
-            sysConfig = { ...sysConfig, ...data };
-            renderRoomSelector(); renderAdminRooms(); renderAdminSups(); renderAdminPsico(); 
-            if (safeGet('psico-room-select')) { 
-                safeGet('psico-room-select').innerHTML = '<option value="" disabled selected>Selecione a Sala</option>' + sysConfig.rooms.map(r => `<option value="${r}">${r}</option>`).join(''); 
+            sysConfig = {
+                ...sysConfig,
+                ...data,
+                timeSlots: data.timeSlots || sysConfig.timeSlots || defaultTimeSlots
+            };
+            renderRoomSelector(); renderAdminRooms(); renderAdminSups(); renderAdminPsico();
+            if (safeGet('psico-room-select')) {
+                safeGet('psico-room-select').innerHTML = '<option value="" disabled selected>Selecione a Sala</option>' + (sysConfig.rooms || []).map(r => `<option value="${r}">${r}</option>`).join('');
             }
-            
-            // Atualizar campo da IA no Admin
-            if (safeGet('ai-n8n-url')) safeGet('ai-n8n-url').value = sysConfig.n8nUrl || '';
-            
-            // Atualizar botão de lançamento da IA na página ia.html
-            const launchBtn = safeGet('launch-ai-link');
-            if (launchBtn && sysConfig.n8nUrl) {
-                launchBtn.href = sysConfig.n8nUrl;
-                launchBtn.style.display = 'flex'; // Garantir que está visível se houver URL
-            } else if (launchBtn) {
-                launchBtn.style.display = 'none'; // Ocultar se não houver URL configurada
-            }
-
-            // Atualizar card da IA na Hub (index.html) se necessário
-            const hubIaCard = document.querySelector('a[href="ia.html"]');
-            if (hubIaCard && !sysConfig.n8nUrl) {
-                // Opcional: mostrar aviso ou desabilitar se não configurado
+            if (safeGet('space-select')) {
+                safeRun(renderAgendamento);
             }
         }
     });
@@ -325,11 +295,7 @@ db.ref('banheiro_keys_state').on('value', (snapshot) => {
 
 db.ref('banheiro_ped_state').on('value', (snapshot) => {
     safeRun(() => {
-        const val = snapshot.val() || { referrals: [] };
-        // Firebase retorna arrays como objetos com chaves numéricas — converter de volta
-        let refs = val.referrals;
-        if (refs && !Array.isArray(refs)) refs = Object.values(refs);
-        pedState = { referrals: refs || [] };
+        pedState = snapshot.val() || { referrals: [] };
         renderPed(); renderMonitor(); updateHubStats();
     });
 });
@@ -337,12 +303,11 @@ db.ref('banheiro_ped_state').on('value', (snapshot) => {
 db.ref('banheiro_psico_state').on('value', (snapshot) => {
     safeRun(() => {
         const val = snapshot.val();
-        // Garantir arrays — Firebase pode retornar objeto com chaves numéricas
-        let queue = val && val.queue ? val.queue : [];
-        if (!Array.isArray(queue)) queue = Object.values(queue);
-        let history = val && val.history ? val.history : [];
-        if (!Array.isArray(history)) history = Object.values(history);
-        psicoState = { queue, history };
+        // Garantir que psicoState sempre tenha a estrutura correta
+        psicoState = {
+            queue: val && val.queue ? val.queue : [],
+            history: val && val.history ? val.history : []
+        };
         renderPsicoAlerts();
         if (safeGet('psico-pending-list')) renderPsicoDashboard();
     });
@@ -477,7 +442,7 @@ function renderRoomSelector() {
     });
 }
 
-function renderAdminRooms() { safeRender('admin-rooms-list', el => { el.innerHTML = sysConfig.rooms.map(r => `<div class="config-item"><span>${r}</span><button class="btn-icon" onclick="adminRemoveRoom('${escapeAttr(r)}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma sala</p>'; }); }
+function renderAdminRooms() { safeRender('admin-rooms-list', el => { el.innerHTML = sysConfig.rooms.map(r => `<div class="config-item"><span>${r}</span><button class="btn-icon" onclick="adminRemoveRoom('${r}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma sala</p>'; }); }
 function renderAdminSups() { safeRender('admin-sups-list', el => { el.innerHTML = Object.entries(sysConfig.supervisors || {}).map(([pass, name]) => `<div class="config-item"><div><strong>${name}</strong> <small style="opacity:0.5">(${pass})</small></div><button class="btn-icon" onclick="adminRemoveSup('${pass}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma supervisora</p>'; }); }
 function renderAdminPsico() { safeRender('admin-psico-list', el => { el.innerHTML = Object.entries(sysConfig.psychologists || {}).map(([pass, name]) => `<div class="config-item"><div><strong>${name}</strong> <small style="opacity:0.5">(${pass})</small></div><button class="btn-icon" onclick="adminRemovePsico('${pass}')">×</button></div>`).join('') || '<p class="empty-msg">Nenhuma psicóloga</p>'; }); }
 
@@ -490,7 +455,7 @@ function renderStudents() {
         filtered.forEach(s => {
             const inQ = (rs.queue || []).includes(s.id), isC = rs.currentOccupant && rs.currentOccupant.id === s.id;
             const div = document.createElement('div'); div.className = 'item student-item';
-            div.innerHTML = `<div class="student-info">${createAvatar(s.name)}<div><div class="name">${s.name}</div><div class="count">${s.visits || 0} idas</div></div></div><div style="display:flex;gap:0.5rem;align-items:center;">${(!inQ && !isC) ? `<button class="btn-primary btn-sm" onclick="addToQueue('${s.id}')">Fila</button>` : `<span class="status-tag">${isC ? 'No Banheiro' : 'Na Fila'}</span>`}<button class="btn-icon" style="background:transparent;color:#ef4444;border:1px solid #ef4444;width:28px;height:28px;font-size:1.2rem;" title="Excluir Aluno" onclick="removeStudent('${s.id}', '${escapeAttr(s.name)}')">×</button></div>`;
+            div.innerHTML = `<div class="student-info">${createAvatar(s.name)}<div><div class="name">${s.name}</div><div class="count">${s.visits || 0} idas</div></div></div><div style="display:flex;gap:0.5rem;align-items:center;">${(!inQ && !isC) ? `<button class="btn-primary btn-sm" onclick="addToQueue('${s.id}')">Fila</button>` : `<span class="status-tag">${isC ? 'No Banheiro' : 'Na Fila'}</span>`}<button class="btn-icon" style="background:transparent;color:#ef4444;border:1px solid #ef4444;width:28px;height:28px;font-size:1.2rem;" title="Excluir Aluno" onclick="removeStudent('${s.id}', '${s.name}')">×</button></div>`;
             el.appendChild(div);
         });
     });
@@ -623,15 +588,15 @@ window.releaseStudentPsico = function(id) {
 
 window.openPsicoAttendModal = function(id, studentName) {
     safeRender('psico-attend-student-name', el => el.innerText = studentName);
-    safeGet('modal-psico-attend')?.classList.add('active');
-    safeGet('psico-attend-reason') && (safeGet('psico-attend-reason').value = '');
+    safeGet('modal-psico-attend').classList.add('active');
+    safeGet('psico-attend-reason').value = '';
     
-    safeGet('btn-psico-cancel-attend').onclick = () => safeGet('modal-psico-attend')?.classList.remove('active');
+    safeGet('btn-psico-cancel-attend').onclick = () => safeGet('modal-psico-attend').classList.remove('active');
     safeGet('btn-psico-confirm-attend').onclick = () => {
         const reason = safeGet('psico-attend-reason').value.trim();
         if (!reason) return alert('Descreva o motivo/resumo do atendimento.');
         requestPsicoAuth('Assinatura do Atendimento', (psicoName) => {
-            safeGet('modal-psico-attend')?.classList.remove('active');
+            safeGet('modal-psico-attend').classList.remove('active');
             
             const qIndex = (psicoState.queue || []).findIndex(x => x.id === id);
             if (qIndex > -1) {
@@ -779,11 +744,13 @@ function createAvatar(name) {
 
 function updateHubStats() {
     safeRun(() => {
-        const ban = safeGet('stat-banheiro'), key = safeGet('stat-chaves'), ped = safeGet('stat-ped'); if (!ban && !key && !ped) return;
+        const ban = safeGet('stat-banheiro'), key = safeGet('stat-chaves'), ped = safeGet('stat-ped'), ti = safeGet('stat-ti');
+        if (!ban && !key && !ped && !ti) return;
         const today = new Date().toLocaleDateString('pt-BR');
-        if (ban) ban.textContent = globalLogs.filter(l => l.date === today).length;
-        if (key) key.textContent = Object.keys(keysState.active).length;
-        if (ped) ped.textContent = pedState.referrals.filter(r => r.status === 'Pendente').length;
+        if (ban) ban.textContent = (globalLogs || []).filter(l => l.date === today).length;
+        if (key) key.textContent = Object.keys(keysState.active || {}).length;
+        if (ped) ped.textContent = (pedState.referrals || []).filter(r => r.status === 'Pendente').length;
+        if (ti) ti.textContent = (tiState.tickets || []).filter(t => t.status === 'Aberto').length;
     });
 }
 
@@ -796,17 +763,6 @@ function init() {
     safeBind('btn-add-room', 'onclick', () => { const name = safeGet('new-room-input').value.trim(); if (name && !sysConfig.rooms.includes(name)) { sysConfig.rooms.push(name); db.ref('banheiro_config').set(sysConfig); safeGet('new-room-input').value = ''; } });
     safeBind('btn-add-sup', 'onclick', () => { const name = safeGet('new-sup-name').value.trim(), pass = safeGet('new-sup-pass').value.trim().toLowerCase(); if (name && pass) { sysConfig.supervisors[pass] = name; db.ref('banheiro_config').set(sysConfig); safeGet('new-sup-name').value = ''; safeGet('new-sup-pass').value = ''; } });
     safeBind('btn-update-master', 'onclick', () => { const pass = safeGet('new-master-pass').value.trim(); if (pass.length >= 4 && confirm('Alterar Senha Mestra?')) { sysConfig.adminPassword = pass; db.ref('banheiro_config').set(sysConfig); alert('Senha alterada!'); location.reload(); } });
-
-    // Admin: IA Docente
-    safeBind('btn-save-ai-config', 'onclick', () => {
-        const url = safeGet('ai-n8n-url').value.trim();
-        if (url) {
-            sysConfig.n8nUrl = url;
-            db.ref('banheiro_config').set(sysConfig).then(() => alert('Configuração de IA salva!'));
-        } else {
-            alert('Por favor, insira uma URL válida.');
-        }
-    });
 
     // Banheiro
     const modal = safeGet('modal-add');
@@ -920,7 +876,7 @@ function init() {
     }
 
     // Pedagógico & Chaves
-    safeBind('btn-send-ped', 'onclick', () => { const p = safeGet('ped-prof-name')?.value.trim(), s = safeGet('ped-student-name')?.value.trim(), r = safeGet('ped-reason')?.value.trim(); if (!p || !s || !r) return alert('Preencha os campos!'); if (!pedState.referrals) pedState.referrals = []; pedState.referrals.push({ id: Date.now().toString(), prof: p, student: s, reason: r, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), status: 'Pendente', date: new Date().toLocaleDateString('pt-BR'), timestamp: Date.now() }); db.ref('banheiro_ped_state').set(pedState); safeGet('ped-student-name').value = ''; safeGet('ped-reason').value = ''; alert('Encaminhado ao Pedagógico.'); });
+    safeBind('btn-send-ped', 'onclick', () => { const p = safeGet('ped-prof-name')?.value.trim(), s = safeGet('ped-student-name')?.value.trim(), r = safeGet('ped-reason')?.value.trim(); if (!p || !s || !r) return alert('Preencha os campos!'); pedState.referrals.push({ id: Date.now().toString(), prof: p, student: s, reason: r, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), status: 'Pendente', date: new Date().toLocaleDateString('pt-BR'), timestamp: Date.now() }); db.ref('banheiro_ped_state').set(pedState); safeGet('ped-student-name').value = ''; safeGet('ped-reason').value = ''; alert('Encaminhado ao Pedagógico.'); });
     safeBind('btn-clear-ped', 'onclick', () => { requestAdminAuth('Limpar encaminhamentos pendentes?', () => { db.ref('banheiro_ped_state').set({referrals:[]}); }); });
     
     // Exportações Globais
@@ -992,15 +948,30 @@ function init() {
         safeBind('space-select', 'onchange', () => safeRun(renderAgendamento));
         safeBind('btn-prev-week', 'onclick', () => { currentWeekOffset--; safeRun(renderAgendamento); });
         safeBind('btn-next-week', 'onclick', () => { currentWeekOffset++; safeRun(renderAgendamento); });
+        
+        safeBind('btn-cancel-agendar', 'onclick', () => safeGet('modal-agendar')?.classList.remove('active'));
+        safeBind('btn-confirm-agendar', 'onclick', () => safeRun(saveSlotBooking));
+        safeBind('btn-close-modal-cancel', 'onclick', () => safeGet('modal-cancelar-agendamento')?.classList.remove('active'));
+        safeBind('btn-confirm-cancel-slot', 'onclick', () => safeRun(executeCancelSlot));
+
+        const inProf = safeGet('agendar-prof-name');
+        if (inProf) inProf.addEventListener('keyup', (e) => { if (e.key === 'Enter') safeRun(saveSlotBooking); });
+        const inDisc = safeGet('agendar-disciplina');
+        if (inDisc) inDisc.addEventListener('keyup', (e) => { if (e.key === 'Enter') safeRun(saveSlotBooking); });
+
+        safeRun(renderAgendamento);
     }
 
     // Iniciar loop seguro do monitor
     if (safeGet('global-feed')) { safeRun(renderMonitor); setInterval(() => safeRun(renderMonitor), 5000); }
-    
+
     // Refresh TI Dashboard a cada minuto para atualizar cores de tempo
     if (safeGet('list-aberto')) { 
         setInterval(() => safeRun(renderTiDashboard), 60000); 
     }
+    
+    // Atualizar métricas do Hub se estiver na página inicial
+    updateHubStats();
 }
 
 // Toasts Seguros
@@ -1028,9 +999,25 @@ function getWeekId(offset) {
     const today = new Date(), day = today.getDay();
     const diff = today.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(today.getFullYear(), today.getMonth(), diff);
+    monday.setHours(0, 0, 0, 0);
+    monday.setDate(monday.getDate() + (offset * 7));
+    const y = monday.getFullYear();
+    const m = String(monday.getMonth() + 1).padStart(2, '0');
+    const d = String(monday.getDate()).padStart(2, '0');
+    return `W_${y}_${m}_${d}`;
+}
+
+function getLegacyWeekId(offset) {
+    const today = new Date(), day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(today.getFullYear(), today.getMonth(), diff);
+    monday.setHours(0, 0, 0, 0);
     monday.setDate(monday.getDate() + (offset * 7));
     return `W${monday.getTime()}`;
 }
+
+let currentSlotBooking = null;
+let currentSlotCancel = null;
 
 function renderAgendamento() {
     safeRender('week-display', el => el.innerText = getWeekRangeStr(currentWeekOffset));
@@ -1038,7 +1025,9 @@ function renderAgendamento() {
     if (!space) return;
     
     const weekId = getWeekId(currentWeekOffset);
-    const weekData = agendamentoState[weekId] && agendamentoState[weekId][space] ? agendamentoState[weekId][space] : {};
+    const legacyWeekId = getLegacyWeekId(currentWeekOffset);
+    const weekObj = (agendamentoState && (agendamentoState[weekId] || agendamentoState[legacyWeekId])) || {};
+    const weekData = weekObj[space] || {};
     
     // Feriados Nacionais Fixos
     const feriados = { '01-01': 'Ano Novo', '01-05': 'Dia do Trabalho', '07-09': 'Independência', '12-10': 'N. Sra. Ap.', '02-11': 'Finados', '15-11': 'República', '25-12': 'Natal' };
@@ -1068,44 +1057,191 @@ function renderAgendamento() {
     buildHeaders('matutino-headers');
     buildHeaders('vespertino-headers');
 
+    const slotsConfig = sysConfig.timeSlots || defaultTimeSlots;
+
     const buildTable = (bodyId, timeSlots) => {
         safeRender(bodyId, el => {
             el.innerHTML = '';
-            timeSlots.forEach(time => {
+            (timeSlots || []).forEach(time => {
                 let row = `<tr><td class="time-col">${time}</td>`;
                 currentDates.forEach((d, i) => {
                     const dayIndex = i + 1, key = `${dayIndex}-${time}`, res = weekData[key];
+                    const dayStr = String(d.getDate()).padStart(2, '0'), monthStr = String(d.getMonth() + 1).padStart(2, '0');
+                    const dateLabel = `${daysNames[i]} (${dayStr}/${monthStr})`;
+                    
                     if (res) {
-                        row += `<td class="slot-cell"><button class="slot-btn slot-occupied" onclick="cancelSlot('${escapeAttr(space)}', '${weekId}', '${key}', '${escapeAttr(res.prof)}')" title="${escapeAttr(res.prof)}">${res.prof}</button></td>`;
+                        const profText = res.prof || 'Ocupado';
+                        row += `<td class="slot-cell"><button class="slot-btn slot-occupied" data-space="${space}" data-week="${weekId}" data-legacy-week="${legacyWeekId}" data-key="${key}" data-date="${dateLabel}" data-time="${time}" title="${profText}">${profText}</button></td>`;
                     } else {
-                        row += `<td class="slot-cell"><button class="slot-btn slot-free" onclick="reserveSlot('${space}', '${weekId}', '${key}')">Livre</button></td>`;
+                        row += `<td class="slot-cell"><button class="slot-btn slot-free" data-space="${space}" data-week="${weekId}" data-legacy-week="${legacyWeekId}" data-key="${key}" data-date="${dateLabel}" data-time="${time}">Livre</button></td>`;
                     }
                 });
                 row += '</tr>';
                 el.innerHTML += row;
             });
+
+            el.querySelectorAll('.slot-free').forEach(btn => {
+                btn.onclick = () => {
+                    const sp = btn.getAttribute('data-space');
+                    const wk = btn.getAttribute('data-week');
+                    const ky = btn.getAttribute('data-key');
+                    const dt = btn.getAttribute('data-date');
+                    const tm = btn.getAttribute('data-time');
+                    openReserveModal(sp, wk, ky, dt, tm);
+                };
+            });
+
+            el.querySelectorAll('.slot-occupied').forEach(btn => {
+                btn.onclick = () => {
+                    const sp = btn.getAttribute('data-space');
+                    const wk = btn.getAttribute('data-week');
+                    const ky = btn.getAttribute('data-key');
+                    const dt = btn.getAttribute('data-date');
+                    const tm = btn.getAttribute('data-time');
+                    openCancelModal(sp, wk, ky, dt, tm);
+                };
+            });
         });
     };
 
-    buildTable('matutino-body', sysConfig.timeSlots.matutino);
-    buildTable('vespertino-body', sysConfig.timeSlots.vespertino);
+    buildTable('matutino-body', slotsConfig.matutino);
+    buildTable('vespertino-body', slotsConfig.vespertino);
 }
 
+window.openReserveModal = function(space, weekId, timeKey, dateLabel, timeLabel) {
+    currentSlotBooking = { space, weekId, timeKey, dateLabel, timeLabel };
+    if (safeGet('modal-agendar')) {
+        if (safeGet('modal-agendar-space-info')) safeGet('modal-agendar-space-info').innerText = space;
+        if (safeGet('modal-agendar-date-info')) safeGet('modal-agendar-date-info').innerText = dateLabel;
+        if (safeGet('modal-agendar-time-info')) safeGet('modal-agendar-time-info').innerText = timeLabel;
+        if (safeGet('agendar-prof-name')) safeGet('agendar-prof-name').value = '';
+        if (safeGet('agendar-disciplina')) safeGet('agendar-disciplina').value = '';
+        safeGet('modal-agendar').classList.add('active');
+        setTimeout(() => safeGet('agendar-prof-name')?.focus(), 100);
+    } else {
+        // Fallback caso o modal não esteja presente
+        window.reserveSlot(space, weekId, timeKey);
+    }
+};
+
+window.saveSlotBooking = function() {
+    if (!currentSlotBooking) return;
+    const prof = safeGet('agendar-prof-name')?.value.trim();
+    const disciplina = safeGet('agendar-disciplina')?.value.trim();
+    if (!prof) {
+        alert('Por favor, informe o nome do professor ou solicitante.');
+        return;
+    }
+
+    const { space, weekId, timeKey } = currentSlotBooking;
+    const displayProf = disciplina ? `${prof} (${disciplina})` : prof;
+
+    if (!agendamentoState[weekId]) agendamentoState[weekId] = {};
+    if (!agendamentoState[weekId][space]) agendamentoState[weekId][space] = {};
+    agendamentoState[weekId][space][timeKey] = {
+        prof: displayProf,
+        profName: prof,
+        disciplina: disciplina || '',
+        ts: Date.now()
+    };
+
+    safeGet('modal-agendar')?.classList.remove('active');
+    renderAgendamento();
+
+    db.ref('banheiro_agendamento').set(agendamentoState)
+        .then(() => {
+            alert('Agendamento realizado com sucesso!');
+            currentSlotBooking = null;
+        })
+        .catch(err => {
+            console.error('Erro ao salvar agendamento:', err);
+            alert('Erro ao salvar no banco de dados. Tente novamente.');
+        });
+};
+
+window.openCancelModal = function(space, weekId, timeKey, dateLabel, timeLabel) {
+    const legacyWeekId = getLegacyWeekId(currentWeekOffset);
+    const actualWeekKey = (agendamentoState && agendamentoState[weekId]) ? weekId : legacyWeekId;
+    const weekObj = (agendamentoState && agendamentoState[actualWeekKey]) || {};
+    const weekData = weekObj[space] || {};
+    const res = weekData[timeKey];
+    if (!res) return;
+
+    currentSlotCancel = { space, actualWeekKey, timeKey, res };
+    if (safeGet('modal-cancelar-agendamento')) {
+        if (safeGet('modal-cancel-space-info')) safeGet('modal-cancel-space-info').innerText = space;
+        if (safeGet('modal-cancel-datetime-info')) safeGet('modal-cancel-datetime-info').innerText = `${dateLabel} - ${timeLabel}`;
+        if (safeGet('modal-cancel-prof-info')) safeGet('modal-cancel-prof-info').innerText = res.profName || res.prof;
+        
+        if (res.disciplina) {
+            if (safeGet('modal-cancel-disciplina-info')) safeGet('modal-cancel-disciplina-info').innerText = res.disciplina;
+            if (safeGet('modal-cancel-disciplina-row')) safeGet('modal-cancel-disciplina-row').style.display = 'block';
+        } else {
+            if (safeGet('modal-cancel-disciplina-row')) safeGet('modal-cancel-disciplina-row').style.display = 'none';
+        }
+
+        if (res.ts && safeGet('modal-cancel-ts-info')) {
+            safeGet('modal-cancel-ts-info').innerText = `Agendado em: ${new Date(res.ts).toLocaleString('pt-BR')}`;
+        }
+
+        safeGet('modal-cancelar-agendamento').classList.add('active');
+    } else {
+        // Fallback
+        window.cancelSlot(space, actualWeekKey, timeKey, res.prof);
+    }
+};
+
+window.executeCancelSlot = function() {
+    if (!currentSlotCancel) return;
+    const { space, actualWeekKey, timeKey, res } = currentSlotCancel;
+    const profName = res.profName || res.prof;
+
+    requestAdminAuth(`CANCELAR reserva de "${profName}"?`, () => {
+        if (agendamentoState[actualWeekKey] && agendamentoState[actualWeekKey][space]) {
+            delete agendamentoState[actualWeekKey][space][timeKey];
+            safeGet('modal-cancelar-agendamento')?.classList.remove('active');
+            renderAgendamento();
+
+            db.ref('banheiro_agendamento').set(agendamentoState)
+                .then(() => {
+                    alert('Reserva cancelada com sucesso.');
+                    currentSlotCancel = null;
+                })
+                .catch(err => {
+                    console.error('Erro ao cancelar reserva:', err);
+                    alert('Erro ao sincronizar cancelamento.');
+                });
+        }
+    });
+};
+
 window.reserveSlot = function(space, weekId, timeKey) {
-    const prof = prompt(`Agendar ${space} (${timeKey.split('-')[1]}).\nSeu Nome e Disciplina:`);
+    const prof = prompt(`Agendar ${space} (${timeKey.split('-')[1] || ''}).\nSeu Nome e Disciplina:`);
     if (prof && prof.trim()) {
-        db.ref(`banheiro_agendamento/${weekId}/${space}/${timeKey}`).set({
-            prof: prof.trim(),
-            ts: Date.now()
-        }).catch(err => alert("Erro ao agendar: " + err.message));
+        if (!agendamentoState[weekId]) agendamentoState[weekId] = {};
+        if (!agendamentoState[weekId][space]) agendamentoState[weekId][space] = {};
+        agendamentoState[weekId][space][timeKey] = { prof: prof.trim(), ts: Date.now() };
+        renderAgendamento();
+        db.ref('banheiro_agendamento').set(agendamentoState).then(() => {
+            alert('Agendamento realizado!');
+        }).catch(() => {
+            alert('Erro ao salvar agendamento.');
+        });
     }
 };
 
 window.cancelSlot = function(space, weekId, timeKey, prof) {
     requestAdminAuth(`CANCELAR reserva de "${prof}"?`, () => {
-        db.ref(`banheiro_agendamento/${weekId}/${space}/${timeKey}`).remove()
-            .catch(err => alert("Erro ao cancelar: " + err.message));
-    }, true);
+        if (agendamentoState[weekId] && agendamentoState[weekId][space]) {
+            delete agendamentoState[weekId][space][timeKey];
+            renderAgendamento();
+            db.ref('banheiro_agendamento').set(agendamentoState).then(() => {
+                alert('Reserva cancelada.');
+            }).catch(() => {
+                alert('Erro ao sincronizar cancelamento.');
+            });
+        }
+    });
 };
 
 // --- Registro de Atrasos ---
@@ -1175,9 +1311,20 @@ function initAtrasosPage() {
 
     if (!alunoInput || !turmaSelect || !timeInput) return;
 
+    // Lista oficial de turmas SESI
+    const turmasSesi = [
+        "6AM", "6BM", "6AV", "6BV",
+        "7AM", "7BM", "7AV", "7BV",
+        "8AM", "8BM", "8AV", "8BV",
+        "9AM", "9BM", "9AV", "9BV",
+        "1AM", "1BM", "1AV", "1BV",
+        "2AM", "2BM", "2AV", "2BV",
+        "3AM", "3BM", "3AV", "3BV"
+    ];
+
     // Preencher turmas
     turmaSelect.innerHTML = '<option value="">Selecione a turma...</option>' + 
-        TURMAS_SESI.map(t => `<option value="${t}">${t}</option>`).join('');
+        turmasSesi.map(t => `<option value="${t}">${t}</option>`).join('');
 
     // Preencher horário atual
     const now = new Date();
@@ -1266,12 +1413,15 @@ function initAtrasosPage() {
     });
 }
 
-// Iniciar binders específicos adicionais
-function initSecondaryPages() {
+// Iniciar binders específicos
+document.addEventListener('DOMContentLoaded', () => {
+    initAtrasosPage();
+    
     // Iniciar formulário de Saídas Antecipadas
     const saidaTurmaSelect = safeGet('saida-turma-select');
     if (saidaTurmaSelect) {
-        saidaTurmaSelect.innerHTML = '<option value="">Selecione a turma...</option>' + TURMAS_SESI.map(t => `<option value="${t}">${t}</option>`).join('');
+        const turmasSesi = ["6AM", "6BM", "6AV", "6BV", "7AM", "7BM", "7AV", "7BV", "8AM", "8BM", "8AV", "8BV", "9AM", "9BM", "9AV", "9BV", "1AM", "1BM", "1AV", "1BV", "2AM", "2BM", "2AV", "2BV", "3AM", "3BM", "3AV", "3BV"];
+        saidaTurmaSelect.innerHTML = '<option value="">Selecione a turma...</option>' + turmasSesi.map(t => `<option value="${t}">${t}</option>`).join('');
         
         // Data de hoje por padrão
         if (safeGet('saida-data')) safeGet('saida-data').value = new Date().toISOString().split('T')[0];
@@ -1381,42 +1531,7 @@ function initSecondaryPages() {
             });
         };
     }
+});
 
-    // Backup Import
-    safeBind('btn-import-trigger', 'onclick', () => safeGet('file-import-backup')?.click());
-    const backupInput = safeGet('file-import-backup');
-    if (backupInput) {
-        backupInput.onchange = (e) => {
-            const f = e.target.files[0]; if (!f) return;
-            requestAdminAuth('Importar Backup — isso substituirá os dados atuais', () => {
-                const r = new FileReader();
-                r.onload = (evt) => {
-                    try {
-                        const b = JSON.parse(evt.target.result);
-                        const promises = [];
-                        if (b.b) promises.push(db.ref('banheiro_multi_state').set(JSON.parse(b.b)));
-                        if (b.l) { const logs = JSON.parse(b.l); Object.values(logs).forEach(l => db.ref('banheiro_global_log').push(l)); }
-                        if (b.k) promises.push(db.ref('banheiro_keys_state').set(JSON.parse(b.k)));
-                        if (b.p) promises.push(db.ref('banheiro_ped_state').set(JSON.parse(b.p)));
-                        if (b.c) promises.push(db.ref('banheiro_config').set(JSON.parse(b.c)));
-                        Promise.all(promises).then(() => alert('Backup importado com sucesso! A página será recarregada.')).then(() => location.reload());
-                    } catch(err) { alert('Erro ao ler o arquivo de backup: ' + err.message); }
-                };
-                r.readAsText(f);
-            });
-            backupInput.value = ''; // reset para permitir re-importação
-        };
-    }
-}
-
-function startup() {
-    safeRun(init);
-    safeRun(initSecondaryPages);
-    initAtrasosPage();
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startup);
-} else {
-    startup();
-}
+// Start
+safeRun(init);

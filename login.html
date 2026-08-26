@@ -489,6 +489,7 @@
             currentX += (targetX - currentX) * 0.06;
             currentY += (targetY - currentY) * 0.06;
             if (studentImg) {
+                const baseY = floating ? 0 : 0;
                 studentImg.style.transform = `translate(${currentX * 14}px, ${currentY * 8}px)`;
             }
             if (heroText) {

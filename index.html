@@ -6,251 +6,1222 @@
     <meta name="theme-color" content="#1e40af">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo_sesi.png">
-    <title>Gestão de Processos - SESI Escola</title>
+    <title>Hub de Gestão & Notícias - SESI Escola</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        .hub-container {
+        :root {
+            --primary: #1e40af;
+            --primary-hover: #1d4ed8;
+            --accent: #10b981;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --card-glass: rgba(255, 255, 255, 0.88);
+            --card-border: rgba(226, 232, 240, 0.85);
+        }
+
+        body {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(30, 64, 175, 0.04) 0, transparent 40%),
+                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.04) 0, transparent 40%),
+                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.03) 0, transparent 50%);
+            padding: 1.25rem 1rem;
+            min-height: 100vh;
+        }
+
+        .hub-wrapper {
+            max-width: 1240px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Header Slim */
+        .hub-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-            text-align: center;
-            padding: 1rem;
+            background: var(--card-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 0.9rem 1.5rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.03);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .hub-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .hub-logo {
-            height: 120px;
+            height: 42px;
             width: auto;
-            margin-bottom: 2rem;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
-            animation: fadeIn 1s ease-out;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
         }
 
-        .hub-title {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
+        .hub-title-group h1 {
+            font-size: 1.2rem;
             font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
         }
 
-        .hub-subtitle {
-            font-size: 1.1rem;
+        .hub-title-group p {
+            font-size: 0.78rem;
             color: var(--text-muted);
-            margin-bottom: 2rem;
-            max-width: 600px;
+            margin: 0;
+            font-weight: 500;
         }
 
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.25rem;
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        .hub-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 1.5rem;
-            border-radius: 24px;
-            text-decoration: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+        .hub-header-meta {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 1.25rem;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
-        .hub-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: var(--glass-shadow);
-            border-color: var(--primary);
-            background: white;
+        .hub-date-pill {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 0.35rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
         }
 
-        .hub-card .icon-circle {
-            width: 80px;
-            height: 80px;
-            background: rgba(30, 64, 175, 0.05);
+        .hub-sync-status {
+            background: rgba(16, 185, 129, 0.08);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 0.35rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #10b981;
             border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px #10b981;
+            animation: pulseAnim 2s infinite;
+        }
+
+        @keyframes pulseAnim {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        /* Slim Metrics Row */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 0.85rem;
+        }
+
+        .metric-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 0.75rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+            border-color: rgba(30, 64, 175, 0.25);
+        }
+
+        .metric-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            transition: all 0.3s;
+            font-size: 1.25rem;
+            flex-shrink: 0;
         }
+        .icon-bg-blue { background: rgba(30, 64, 175, 0.08); }
+        .icon-bg-amber { background: rgba(245, 158, 11, 0.1); }
+        .icon-bg-emerald { background: rgba(16, 185, 129, 0.1); }
+        .icon-bg-indigo { background: rgba(99, 102, 241, 0.1); }
 
-        .hub-card:hover .icon-circle {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.1);
+        .metric-details {
+            display: flex;
+            flex-direction: column;
         }
-
-        .hub-card h3 {
-            font-size: 1.4rem;
-            color: var(--text-color);
-            margin: 0;
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+        .metric-label {
+            font-size: 0.7rem;
             font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-top: 0.1rem;
         }
 
-        .hub-card p {
+        /* Section Title & Search */
+        .section-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-heading {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 0;
+        }
+
+        .section-badge {
+            font-size: 0.68rem;
+            background: rgba(30, 64, 175, 0.08);
+            color: var(--primary);
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .search-container {
+            position: relative;
+            min-width: 240px;
+        }
+        .search-container input {
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 0.45rem 0.85rem 0.45rem 2.1rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-family: inherit;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.7rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Slim Modules Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 0.85rem;
+        }
+
+        .module-item {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 0.95rem 1.1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+        .module-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: transparent;
+            border-radius: 4px 0 0 4px;
+            transition: background 0.2s;
+        }
+        .module-item:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px -3px rgba(30, 64, 175, 0.1);
+            border-color: rgba(30, 64, 175, 0.3);
+        }
+        .module-item:hover::before {
+            background: var(--primary);
+        }
+
+        .module-icon-wrap {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .module-item:hover .module-icon-wrap {
+            transform: scale(1.06);
+            background: rgba(30, 64, 175, 0.06);
+        }
+
+        .module-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .module-name {
             font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 0.15rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .module-caption {
+            font-size: 0.73rem;
             color: var(--text-muted);
             margin: 0;
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .module-arrow {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            transition: transform 0.2s, color 0.2s;
+        }
+        .module-item:hover .module-arrow {
+            transform: translateX(2px);
+            color: var(--primary);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Lower Section: News & Educational Hub */
+        .bottom-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.25rem;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 990px) {
+            .bottom-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .news-panel {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.35rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+
+        .news-filter-tabs {
+            display: flex;
+            gap: 0.4rem;
+            overflow-x: auto;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .news-filter-btn {
+            background: transparent;
+            border: none;
+            padding: 0.45rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .news-filter-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+        .news-filter-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
+        }
+
+        .news-cards-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 0.9rem;
+        }
+
+        .news-article-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.65rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            cursor: pointer;
+        }
+        .news-article-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 6px 14px rgba(30, 64, 175, 0.08);
+        }
+
+        .news-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .news-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.18rem 0.5rem;
+            border-radius: 5px;
+            letter-spacing: 0.03em;
+        }
+        .badge-sesi { background: #dbeafe; color: #1e40af; }
+        .badge-steam { background: #fef3c7; color: #b45309; }
+        .badge-ped { background: #d1fae5; color: #065f46; }
+        .badge-tech { background: #ede9fe; color: #6d28d9; }
+        .badge-gestao { background: #fee2e2; color: #991b1b; }
+
+        .news-timestamp {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .news-headline {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.35;
+            margin: 0;
+        }
+
+        .news-excerpt {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.45rem;
+            border-top: 1px solid #f8fafc;
+            font-size: 0.72rem;
+        }
+        .news-origin {
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .news-read-more {
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            transition: color 0.2s;
+        }
+        .news-article-card:hover .news-read-more {
+            color: var(--primary);
+        }
+
+        /* Educational Portals Sidebar */
+        .portals-panel {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.35rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .portal-entry {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 11px;
+            padding: 0.65rem 0.85rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.2s;
+        }
+        .portal-entry:hover {
+            transform: translateX(3px);
+            border-color: var(--primary);
+            background: #f8fafc;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+        }
+        .portal-icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .portal-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .portal-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .portal-sub {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .portal-external {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .portal-entry:hover .portal-external {
+            color: var(--primary);
+        }
+
+        /* Modal News Reader */
+        #modal-news-view .modal-content {
+            max-width: 580px;
+            max-height: 85vh;
+            overflow-y: auto;
+            text-align: left;
+            padding: 1.75rem;
+        }
+        .news-view-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .news-view-text {
+            font-size: 0.9rem;
+            line-height: 1.65;
+            color: #334155;
+            margin-bottom: 1.5rem;
+        }
+        .news-view-text p {
+            margin-bottom: 0.85rem;
+        }
+        .news-view-text ul {
+            padding-left: 1.25rem;
+            margin-bottom: 0.85rem;
+        }
+        .news-view-text li {
+            margin-bottom: 0.35rem;
+        }
+
+        /* Responsive Fixes */
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hub-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .hub-header-meta {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .search-container {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body style="background: radial-gradient(circle at top right, #eff6ff, #ffffff);">
-    <div class="container">
-        <div class="hub-container">
-            <img src="logo_sesi.png" alt="SESI Escola" class="hub-logo">
-            
-            <h1 class="hub-title">Bem-vindo à Gestão de Processos</h1>
-            <p class="hub-subtitle">Centralize e organize as rotinas da sua unidade escolar de forma simples e profissional.</p>
-
-            <div class="stats-row" id="hub-stats">
-                <div class="stat-card">
-                    <div class="stat-icon">🏫</div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="stat-banheiro">0</span>
-                        <span class="stat-label">Banheiro Hoje</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🔑</div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="stat-chaves">0</span>
-                        <span class="stat-label">Chaves em Uso</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👩‍🏫</div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="stat-ped">0</span>
-                        <span class="stat-label">Pendência Ped.</span>
-                    </div>
+<body>
+    <div class="hub-wrapper">
+        
+        <!-- Header Slim & Status -->
+        <header class="hub-header" style="margin-bottom: 0; padding-top: 0.9rem; text-align: left;">
+            <div class="hub-brand">
+                <img src="logo_sesi.png" alt="SESI Escola" class="hub-logo">
+                <div class="hub-title-group">
+                    <h1 id="hub-greeting">Gestão de Processos</h1>
+                    <p>Ambiente Digital Integrado • SESI Escola</p>
                 </div>
             </div>
 
-            <div class="options-grid">
-                <!-- Opção 1: Banheiro -->
-                <a href="banheiro.html" class="hub-card">
-                    <div class="icon-circle">🏫</div>
-                    <h3>Gestão de Sala</h3>
-                    <p>Controle de idas e filas de alunos</p>
+            <div class="hub-header-meta">
+                <div class="hub-date-pill" id="hub-live-date">
+                    📅 Carregando data...
+                </div>
+                <div class="hub-sync-status">
+                    <span class="pulse-dot"></span>
+                    <span>Firebase Conectado</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra de Métricas Slim (Live Stats) -->
+        <section class="metrics-grid" id="hub-stats">
+            <div class="metric-card">
+                <div class="metric-icon-box icon-bg-blue">🏫</div>
+                <div class="metric-details">
+                    <span class="metric-value" id="stat-banheiro">0</span>
+                    <span class="metric-label">Banheiro Hoje</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-box icon-bg-amber">🔑</div>
+                <div class="metric-details">
+                    <span class="metric-value" id="stat-chaves">0</span>
+                    <span class="metric-label">Chaves em Uso</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-box icon-bg-emerald">👩‍🏫</div>
+                <div class="metric-details">
+                    <span class="metric-value" id="stat-ped">0</span>
+                    <span class="metric-label">Supervisão Ped.</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon-box icon-bg-indigo">💻</div>
+                <div class="metric-details">
+                    <span class="metric-value" id="stat-ti">0</span>
+                    <span class="metric-label">Chamados TI</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção: Módulos Operacionais Slim -->
+        <section>
+            <div class="section-bar">
+                <h2 class="section-heading">
+                    <span>⚡ Módulos do Sistema</span>
+                    <span class="section-badge" id="modules-count">14 módulos</span>
+                </h2>
+                
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="module-search-input" placeholder="Buscar módulo ou rotina...">
+                </div>
+            </div>
+
+            <div class="modules-grid" id="modules-container">
+                <!-- Mod 1: Banheiro -->
+                <a href="banheiro.html" class="module-item" data-keywords="banheiro sala alunos fila presenca">
+                    <div class="module-icon-wrap">🏫</div>
+                    <div class="module-text">
+                        <div class="module-name">Gestão de Sala <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Controle de idas e filas de alunos</p>
+                    </div>
                 </a>
 
-                <!-- Opção 2: Chaves -->
-                <a href="chaves.html" class="hub-card">
-                    <div class="icon-circle">🔑</div>
-                    <h3>Gestão de Chaves</h3>
-                    <p>Retirada e devolução de chaves</p>
+                <!-- Mod 2: Chaves -->
+                <a href="chaves.html" class="module-item" data-keywords="chaves retirada devolucao armarios">
+                    <div class="module-icon-wrap">🔑</div>
+                    <div class="module-text">
+                        <div class="module-name">Gestão de Chaves <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Retirada e devolução de chaves</p>
+                    </div>
                 </a>
 
-                <!-- Opção 3: Pedagógico -->
-                <a href="pedagogico.html" class="hub-card">
-                    <div class="icon-circle">👩‍🏫</div>
-                    <h3>Supervisão Pedagógica</h3>
-                    <p>Encaminhamento e atendimento</p>
+                <!-- Mod 3: Pedagógico -->
+                <a href="pedagogico.html" class="module-item" data-keywords="supervisao pedagogico encaminhamento alunos">
+                    <div class="module-icon-wrap">👩‍🏫</div>
+                    <div class="module-text">
+                        <div class="module-name">Supervisão Pedagógica <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Encaminhamento e atendimento</p>
+                    </div>
                 </a>
 
-                <!-- Opção 4: Psicologia -->
-                <a href="psicologia.html" class="hub-card">
-                    <div class="icon-circle">🧠</div>
-                    <h3>Psicologia Escolar</h3>
-                    <p>Chamados e atendimentos psicológicos</p>
+                <!-- Mod 4: Psicologia -->
+                <a href="psicologia.html" class="module-item" data-keywords="psicologia psicologa apoio atendimento">
+                    <div class="module-icon-wrap">🧠</div>
+                    <div class="module-text">
+                        <div class="module-name">Psicologia Escolar <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Chamados e atendimentos</p>
+                    </div>
                 </a>
 
-                <!-- Opção 4: Supervisão -->
-                <a href="supervisao.html" class="hub-card">
-                    <div class="icon-circle">📊</div>
-                    <h3>Painel de Supervisão</h3>
-                    <p>Relatórios e monitoramento global</p>
+                <!-- Mod 5: Supervisão -->
+                <a href="supervisao.html" class="module-item" data-keywords="supervisao painel relatorio coordenacao">
+                    <div class="module-icon-wrap">📊</div>
+                    <div class="module-text">
+                        <div class="module-name">Painel de Supervisão <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Relatórios e monitoramento global</p>
+                    </div>
                 </a>
 
-                <!-- Opção 5: Monitor Ao Vivo -->
-                <a href="monitor.html" class="hub-card glass">
-                    <div class="icon-circle">🖥️</div>
-                    <h3>Monitor Global</h3>
-                    <p>Feed ao vivo de todas as atividades</p>
+                <!-- Mod 6: Monitor Global -->
+                <a href="monitor.html" class="module-item" data-keywords="monitor feed ao vivo televisao tempo real">
+                    <div class="module-icon-wrap">🖥️</div>
+                    <div class="module-text">
+                        <div class="module-name">Monitor Global <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Feed ao vivo de todas as atividades</p>
+                    </div>
                 </a>
 
-                <!-- Opção 6: Agendamento -->
-                <a href="agendamento.html" class="hub-card">
-                    <div class="icon-circle">📅</div>
-                    <h3>Agendamento Digital</h3>
-                    <p>Reserva de Quadras e Laboratórios</p>
+                <!-- Mod 7: Agendamento Digital -->
+                <a href="agendamento.html" class="module-item" data-keywords="agendamento quadra laboratorio informatica espacos">
+                    <div class="module-icon-wrap">📅</div>
+                    <div class="module-text">
+                        <div class="module-name">Agendamento Digital <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Reserva de Quadras e Laboratórios</p>
+                    </div>
                 </a>
 
-                <!-- Opção 7: Navegador Seguro -->
-                <a href="https://securesesi.netlify.app/" target="_blank" rel="noopener noreferrer" class="hub-card" style="border: 1.5px solid rgba(30, 64, 175, 0.25); background: rgba(30, 64, 175, 0.04);">
-                    <div class="icon-circle">🔒</div>
-                    <h3>Navegador Seguro</h3>
-                    <p>Acesso ao ambiente controlado SESI</p>
+                <!-- Mod 8: Navegador Seguro -->
+                <a href="https://securesesi.netlify.app/" target="_blank" rel="noopener noreferrer" class="module-item" data-keywords="navegador seguro ambiente controlado prova">
+                    <div class="module-icon-wrap">🔒</div>
+                    <div class="module-text">
+                        <div class="module-name">Navegador Seguro <span class="module-arrow">↗</span></div>
+                        <p class="module-caption">Ambiente controlado SESI</p>
+                    </div>
                 </a>
 
-                <!-- Opção 8: Liberação Antecipada -->
-                <a href="supervisao.html#saidas-section" class="hub-card" style="border: 1.5px solid rgba(139, 92, 246, 0.25); background: rgba(139, 92, 246, 0.04);">
-                    <div class="icon-circle">🏃</div>
-                    <h3>Liberação Antecipada</h3>
-                    <p>Saída autorizada com assinatura</p>
+                <!-- Mod 9: Liberação Antecipada -->
+                <a href="supervisao.html#saidas-section" class="module-item" data-keywords="liberacao antecipada saida alunos assinatura">
+                    <div class="module-icon-wrap">🏃</div>
+                    <div class="module-text">
+                        <div class="module-name">Liberação Antecipada <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Saída autorizada com assinatura</p>
+                    </div>
                 </a>
 
-                <!-- Opção 9: Registro de Atrasos -->
-                <a href="atrasos.html" class="hub-card" style="border: 1.5px solid rgba(245, 158, 11, 0.25); background: rgba(245, 158, 11, 0.04);">
-                    <div class="icon-circle">⏰</div>
-                    <h3>Registro de Atrasos</h3>
-                    <p>Controle e alerta de atrasos recorrentes</p>
+                <!-- Mod 10: Registro de Atrasos -->
+                <a href="atrasos.html" class="module-item" data-keywords="atrasos pontualidade recorrencia portaria">
+                    <div class="module-icon-wrap">⏰</div>
+                    <div class="module-text">
+                        <div class="module-name">Registro de Atrasos <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Controle e alertas de pontualidade</p>
+                    </div>
                 </a>
 
-                <!-- Opção 10: Painel TI -->
-                <a href="ti.html" class="hub-card" style="border: 1.5px solid rgba(59, 130, 246, 0.25); background: rgba(59, 130, 246, 0.04);">
-                    <div class="icon-circle">💻</div>
-                    <h3>Painel TI</h3>
-                    <p>Gerenciamento de chamados técnicos</p>
+                <!-- Mod 11: Painel TI -->
+                <a href="ti.html" class="module-item" data-keywords="ti suporte tecnico computador projetor internet">
+                    <div class="module-icon-wrap">💻</div>
+                    <div class="module-text">
+                        <div class="module-name">Painel TI <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Gerenciamento de chamados técnicos</p>
+                    </div>
                 </a>
 
-                <!-- Opção 11: Suporte Técnico -->
-                <a href="suporte.html" class="hub-card" style="border: 1.5px solid rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.04);">
-                    <div class="icon-circle">💬</div>
-                    <h3>Suporte Técnico</h3>
-                    <p>Reportar erros ou sugestões</p>
+                <!-- Mod 12: Suporte Técnico -->
+                <a href="suporte.html" class="module-item" data-keywords="suporte ajuda contato desenvolvedor sugestoes">
+                    <div class="module-icon-wrap">💬</div>
+                    <div class="module-text">
+                        <div class="module-name">Suporte Técnico <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Reportar erros ou sugestões</p>
+                    </div>
                 </a>
 
-                <!-- Opção 12: IA Docente (n8n) -->
-                <a href="ia.html" class="hub-card" style="border: 1.5px solid rgba(139, 92, 246, 0.35); background: rgba(139, 92, 246, 0.06);">
-                    <div class="icon-circle">🤖</div>
-                    <h3>IA Docente</h3>
-                    <p>Assistente com Inteligência Artificial</p>
+                <!-- Mod 13: IA Docente -->
+                <a href="ia.html" class="module-item" data-keywords="ia docente inteligencia artificial assistente professor">
+                    <div class="module-icon-wrap">🤖</div>
+                    <div class="module-text">
+                        <div class="module-name">IA Docente <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Assistente com Inteligência Artificial</p>
+                    </div>
                 </a>
 
-                <a href="admin.html" class="hub-card glass admin-card">
-                    <div class="icon-circle">⚙️</div>
-                    <h3>Painel Admin</h3>
-                    <p>Configurar salas, senhas e sistema</p>
+                <!-- Mod 14: Painel Admin -->
+                <a href="admin.html" class="module-item" data-keywords="admin configuracao salas senhas seguranca">
+                    <div class="module-icon-wrap">⚙️</div>
+                    <div class="module-text">
+                        <div class="module-name">Painel Admin <span class="module-arrow">→</span></div>
+                        <p class="module-caption">Salas, senhas e configurações</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Seção: Notícias Educacionais & Portais da Rede SESI -->
+        <section class="bottom-layout">
+            
+            <!-- Feed de Notícias Educacionais -->
+            <div class="news-panel">
+                <div class="section-bar" style="margin-bottom: 0;">
+                    <h2 class="section-heading">
+                        <span>📰 Notícias & Destaques Educacionais</span>
+                    </h2>
+                </div>
+
+                <!-- Abas de Filtro de Notícias -->
+                <div class="news-filter-tabs">
+                    <button class="news-filter-btn active" data-cat="all">🌟 Todas</button>
+                    <button class="news-filter-btn" data-cat="sesi">🏭 Rede SESI & FIERN</button>
+                    <button class="news-filter-btn" data-cat="steam">🚀 STEAM & Inovação</button>
+                    <button class="news-filter-btn" data-cat="pedagogico">👩‍🏫 Práticas Pedagógicas</button>
+                    <button class="news-filter-btn" data-cat="tech">💡 Tecnologia & IA</button>
+                </div>
+
+                <!-- Lista de Notícias -->
+                <div class="news-cards-list" id="news-container">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <!-- Sidebar: Acesso Rápido a Portais Educacionais -->
+            <aside class="portals-panel">
+                <h2 class="section-heading" style="margin-bottom: 0.25rem;">
+                    <span>🔗 Portais Educacionais</span>
+                </h2>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 0.5rem 0;">Acesso direto às plataformas e sistemas oficiais:</p>
+
+                <!-- Link 1: Portal SESI Educação -->
+                <a href="https://www.portaldaindustria.com.br/sesi/canais/educacao/" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">🏛️</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Portal SESI Educação <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Diretrizes, projetos e rede nacional</p>
+                    </div>
+                </a>
+
+                <!-- Link 2: Sistema FIERN -->
+                <a href="https://www.fiern.org.br/" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">🏭</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Sistema FIERN <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Federação das Indústrias do RN</p>
+                    </div>
+                </a>
+
+                <!-- Link 3: Meu SESI -->
+                <a href="https://www.meusesi.com.br/" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">👤</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Meu SESI <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Portal de serviços e comunidade</p>
+                    </div>
+                </a>
+
+                <!-- Link 4: Porvir -->
+                <a href="https://porvir.org/" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">📖</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Porvir Inovações <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Tendências e metodologias ativas</p>
+                    </div>
+                </a>
+
+                <!-- Link 5: Nova Escola -->
+                <a href="https://novaescola.org.br/" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">🎓</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Nova Escola <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Planos de aula e práticas docentes</p>
+                    </div>
+                </a>
+
+                <!-- Link 6: Google Sala de Aula -->
+                <a href="https://classroom.google.com/" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">💻</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Google Classroom <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Ambiente virtual de aprendizagem</p>
+                    </div>
+                </a>
+
+                <!-- Link 7: MEC -->
+                <a href="https://www.gov.br/mec/pt-br" target="_blank" rel="noopener noreferrer" class="portal-entry">
+                    <div class="portal-icon-box">📑</div>
+                    <div class="portal-info">
+                        <div class="portal-title">Portal do MEC <span class="portal-external">↗</span></div>
+                        <p class="portal-sub">Legislação e diretrizes da Educação</p>
+                    </div>
+                </a>
+            </aside>
+        </section>
+
+    </div>
+
+    <!-- Modal Leitor de Notícia Completa -->
+    <div id="modal-news-view" class="modal">
+        <div class="modal-content glass">
+            <div class="news-view-header">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span id="news-modal-badge" class="news-badge badge-sesi">Rede SESI</span>
+                    <span id="news-modal-date" style="font-size:0.75rem; color:var(--text-muted);">Data</span>
+                </div>
+                <h3 id="news-modal-title" style="color:var(--primary); font-size:1.15rem; line-height:1.35; margin:0;">Título da Notícia</h3>
+                <p id="news-modal-origin" style="font-size:0.78rem; color:var(--text-muted); margin:0.35rem 0 0 0; font-weight:600;">Fonte: -</p>
+            </div>
+
+            <div class="news-view-text" id="news-modal-content">
+                <!-- Conteúdo formatado -->
+            </div>
+
+            <div class="modal-actions" style="margin-top: 1rem;">
+                <button id="btn-close-news-modal" class="btn-secondary">Fechar</button>
+                <a id="btn-visit-news-source" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-decoration: none; text-align: center; display: inline-flex; align-items: center; justify-content: center;">
+                    Acessar Fonte Oficial ↗
                 </a>
             </div>
         </div>
     </div>
 
-    <footer>
-        <p>Desenvolvedor Mateus Zeca</p>
+    <footer style="margin-top: 2rem; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+        <p>Desenvolvido para SESI Escola • Desenvolvedor Mateus Zeca</p>
     </footer>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="app.js"></script>
+
+    <!-- Script Interativo do Hub e Feed de Notícias -->
+    <script>
+        // --- 1. Dados Ricos de Notícias Educacionais & Rede SESI ---
+        const educationalNews = [
+            {
+                id: 'news-1',
+                category: 'sesi',
+                badgeText: 'Rede SESI',
+                badgeClass: 'badge-sesi',
+                title: 'SESI Escola intensifica projetos de Robótica e Metodologia STEAM para torneios nacionais',
+                date: 'Hoje',
+                origin: 'Portal SESI / FIERN',
+                url: 'https://www.portaldaindustria.com.br/sesi/canais/educacao/',
+                summary: 'Estudantes e professores da Rede SESI preparam equipes para as etapas regionais e nacionais da FIRST LEGO League e F1 in Schools com foco em engenharia e programação.',
+                fullHtml: `
+                    <p>A <strong>Rede SESI Escola</strong> consolida seu papel de referência no ensino de tecnologia e inovação com a ampliação dos programas preparatórios para os principais torneios de robótica educacional do país.</p>
+                    <p><strong>Principais destaques:</strong></p>
+                    <ul>
+                        <li><strong>Metodologia STEAM Integrada:</strong> Aulas práticas unindo Ciência, Tecnologia, Engenharia, Artes e Matemática na resolução de desafios comunitários reais.</li>
+                        <li><strong>Competições FIRST & F1:</strong> Treinamentos de programação de robôs, modelagem 3D, aerodinâmica e gestão de projetos desenvolvidos pelos próprios estudantes.</li>
+                        <li><strong>Desenvolvimento de Soft Skills:</strong> Ênfase em trabalho colaborativo em equipe, liderança, oratória e pensamento analítico.</li>
+                    </ul>
+                    <p>O objetivo é capacitar jovens protagonistas para as profissões do futuro com foco na indústria 4.0 e transformação digital.</p>
+                `
+            },
+            {
+                id: 'news-2',
+                category: 'steam',
+                badgeText: 'Inovação',
+                badgeClass: 'badge-steam',
+                title: 'Cultura Maker na Sala de Aula: Como projetos "mão na massa" transformam o aprendizado',
+                date: '25 de Agosto',
+                origin: 'Porvir Inovações',
+                url: 'https://porvir.org/',
+                summary: 'A integração de prototipagem rápida, impressão 3D e materiais reutilizáveis estimula a curiosidade e o protagonismo dos alunos em todas as etapas de aprendizagem.',
+                fullHtml: `
+                    <p>A abordagem <strong>Maker</strong> tem transformado a dinâmica das salas de aula em todo o país, proporcionando um ambiente investigativo onde o estudante aprende criando soluções palpáveis.</p>
+                    <p><strong>Benefícios observados nas escolas:</strong></p>
+                    <ul>
+                        <li><strong>Fixação conceitual:</strong> Aplicação imediata de fórmulas e teorias científicas em protótipos funcionais.</li>
+                        <li><strong>Cultura de experimentação:</strong> O erro passa a ser visto como parte construtiva da aprendizagem e do aprimoramento contínuo.</li>
+                        <li><strong>Interdisciplinaridade:</strong> Projetos conectam simultaneamente física, história, sustentabilidade e design.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'news-3',
+                category: 'pedagogico',
+                badgeText: 'Pedagógico',
+                badgeClass: 'badge-ped',
+                title: 'Competências Socioemocionais: Ações integradas fortalecem a convivência escolar',
+                date: '24 de Agosto',
+                origin: 'Revista Nova Escola',
+                url: 'https://novaescola.org.br/',
+                summary: 'Práticas estruturadas de escuta, diálogo e mediação pedagógica reduzem atritos em sala de aula e elevam o rendimento acadêmico geral.',
+                fullHtml: `
+                    <p>O desenvolvimento das <strong>competências socioemocionais</strong> alinhadas à BNCC tem se mostrado um dos pilares mais eficazes para a melhoria do clima escolar e prevenção de conflitos.</p>
+                    <p><strong>Estratégias pedagógicas recomendadas:</strong></p>
+                    <ul>
+                        <li><strong>Círculos de Diálogo e Acolhimento:</strong> Momentos estruturados para autoavaliação e escuta ativa de expectativas e desafios dos alunos.</li>
+                        <li><strong>Parceria com Psicologia Escolar:</strong> Identificação precoce de sobrecargas emocionais e apoio personalizado a turmas e famílias.</li>
+                        <li><strong>Comunicação Não-Violenta:</strong> Ferramentas de resolução pacífica integradas à rotina da supervisão pedagógica.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'news-4',
+                category: 'tech',
+                badgeText: 'Tecnologia & IA',
+                badgeClass: 'badge-tech',
+                title: 'Inteligência Artificial na Educação: Guia prático de apoio ao trabalho docente',
+                date: '22 de Agosto',
+                origin: 'UNESCO / MEC',
+                url: 'https://www.gov.br/mec/pt-br',
+                summary: 'Diretrizes oficiais e exemplos de uso seguro de ferramentas digitais e IA para planejamento pedagógico, personalização e avaliação formativa.',
+                fullHtml: `
+                    <p>O avanço das ferramentas de Inteligência Artificial generativa abre oportunidades inéditas para otimizar o tempo de preparação docente e enriquecer os materiais de sala de aula.</p>
+                    <p><strong>Recomendações para os educadores:</strong></p>
+                    <ul>
+                        <li><strong>Curadoria e Validação:</strong> A IA atua como assistente e copiloto, exigindo sempre a revisão crítica e contextual do professor.</li>
+                        <li><strong>Personalização de Trilhas:</strong> Criação de atividades multinível adequadas ao ritmo de aprendizagem de cada estudante.</li>
+                        <li><strong>Letramento Digital:</strong> Ensinar os alunos a pesquisar criticamente, verificar fontes e evitar plágio automatizado.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'news-5',
+                category: 'sesi',
+                badgeText: 'SESI RN',
+                badgeClass: 'badge-sesi',
+                title: 'Sistema FIERN investe na modernização de laboratórios e ambientes tecnológicos',
+                date: '20 de Agosto',
+                origin: 'Sistema FIERN',
+                url: 'https://www.fiern.org.br/',
+                summary: 'Novos equipamentos para laboratórios multidisciplinares e de informática ampliam as oportunidades de práticas experimentais no Rio Grande do Norte.',
+                fullHtml: `
+                    <p>O <strong>Sistema FIERN</strong> segue expandindo seus investimentos contínuos na infraestrutura das unidades SESI Escola em todo o estado do Rio Grande do Norte.</p>
+                    <p><strong>Modernizações implementadas:</strong></p>
+                    <ul>
+                        <li><strong>Laboratórios Multidisciplinares:</strong> Kits experimentais modernos de química, física e biologia com alta segurança.</li>
+                        <li><strong>Parque Computacional Renovado:</strong> Máquinas de alto desempenho para suporte às plataformas educacionais digitais.</li>
+                        <li><strong>Conectividade Robusta:</strong> Redes de alta velocidade para viabilizar aulas interativas e transmissão de projetos.</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'news-6',
+                category: 'pedagogico',
+                badgeText: 'Gestão Escolar',
+                badgeClass: 'badge-gestao',
+                title: 'Avaliação Diagnóstica e Gestão de Presença no 2º Semestre Letivo',
+                date: '18 de Agosto',
+                origin: 'Portal do Educador',
+                url: 'https://novaescola.org.br/',
+                summary: 'Acompanhamento sistemático de frequência e registros diários são determinantes para identificar gargalos e garantir a permanência dos alunos.',
+                fullHtml: `
+                    <p>Com a entrada na segunda metade do ano letivo, o alinhamento de registros de frequência e intervenções pontuais assegura o cumprimento integral dos objetivos de aprendizagem.</p>
+                    <p><strong>Pontos-chave:</strong></p>
+                    <ul>
+                        <li>Monitoramento integrado de atrasos recorrentes e faltas consecutivas.</li>
+                        <li>Planos de recuperação paralela direcionados às dificuldades identificadas.</li>
+                        <li>Comunicação contínua e ágil com responsáveis via canais digitais.</li>
+                    </ul>
+                `
+            }
+        ];
+
+        // --- 2. Renderização do Feed de Notícias com Filtros ---
+        function renderNewsFeed(categoryFilter = 'all') {
+            const container = document.getElementById('news-container');
+            if (!container) return;
+
+            const filtered = categoryFilter === 'all' 
+                ? educationalNews 
+                : educationalNews.filter(n => n.category === categoryFilter);
+
+            container.innerHTML = filtered.map(item => `
+                <article class="news-article-card" onclick="openNewsModal('${item.id}')">
+                    <div class="news-card-top">
+                        <span class="news-badge ${item.badgeClass}">${item.badgeText}</span>
+                        <span class="news-timestamp">${item.date}</span>
+                    </div>
+                    <div>
+                        <h3 class="news-headline">${item.title}</h3>
+                        <p class="news-excerpt" style="margin-top: 0.35rem;">${item.summary}</p>
+                    </div>
+                    <div class="news-card-bottom">
+                        <span class="news-origin">🏛️ ${item.origin}</span>
+                        <span class="news-read-more">Ler resumo →</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // --- 3. Controle do Modal de Leitura de Notícias ---
+        function openNewsModal(newsId) {
+            const item = educationalNews.find(n => n.id === newsId);
+            if (!item) return;
+
+            const modal = document.getElementById('modal-news-view');
+            const badge = document.getElementById('news-modal-badge');
+            const date = document.getElementById('news-modal-date');
+            const title = document.getElementById('news-modal-title');
+            const origin = document.getElementById('news-modal-origin');
+            const content = document.getElementById('news-modal-content');
+            const link = document.getElementById('btn-visit-news-source');
+
+            badge.className = `news-badge ${item.badgeClass}`;
+            badge.textContent = item.badgeText;
+            date.textContent = item.date;
+            title.textContent = item.title;
+            origin.textContent = `Fonte: ${item.origin}`;
+            content.innerHTML = item.fullHtml;
+            link.href = item.url;
+
+            modal.classList.add('active');
+        }
+
+        // --- 4. Inicialização de Eventos e Saudação Dinâmica ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render inicial de notícias
+            renderNewsFeed('all');
+
+            // Data atual formatada e Saudação
+            const now = new Date();
+            const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+            const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            const dayName = days[now.getDay()];
+            const dayNum = now.getDate();
+            const monthName = months[now.getMonth()];
+            const dateStr = `${dayName}, ${dayNum} de ${monthName}`;
+            
+            const dateEl = document.getElementById('hub-live-date');
+            if (dateEl) dateEl.innerHTML = `📅 ${dateStr}`;
+
+            const hour = now.getHours();
+            let greeting = 'Olá, Educador(a)!';
+            if (hour >= 5 && hour < 12) greeting = 'Bom dia, Educador(a)!';
+            else if (hour >= 12 && hour < 18) greeting = 'Boa tarde, Educador(a)!';
+            else greeting = 'Boa noite, Educador(a)!';
+            
+            const greetingEl = document.getElementById('hub-greeting');
+            if (greetingEl) greetingEl.textContent = greeting;
+
+            // Filtros de Notícias
+            document.querySelectorAll('.news-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.news-filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const cat = btn.getAttribute('data-cat');
+                    renderNewsFeed(cat);
+                });
+            });
+
+            // Modal de Notícias Fechar
+            const closeBtn = document.getElementById('btn-close-news-modal');
+            const modal = document.getElementById('modal-news-view');
+            if (closeBtn && modal) {
+                closeBtn.onclick = () => modal.classList.remove('active');
+                modal.onclick = (e) => {
+                    if (e.target === modal) modal.classList.remove('active');
+                };
+            }
+
+            // Busca Dinâmica de Módulos
+            const searchInput = document.getElementById('module-search-input');
+            const moduleItems = document.querySelectorAll('.module-item');
+            const countBadge = document.getElementById('modules-count');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const q = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+                    let visibleCount = 0;
+
+                    moduleItems.forEach(item => {
+                        const name = item.querySelector('.module-name')?.textContent || '';
+                        const caption = item.querySelector('.module-caption')?.textContent || '';
+                        const keywords = item.getAttribute('data-keywords') || '';
+                        
+                        const fullText = (name + ' ' + caption + ' ' + keywords).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                        if (!q || fullText.includes(q)) {
+                            item.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    if (countBadge) {
+                        countBadge.textContent = `${visibleCount} módulo${visibleCount !== 1 ? 's' : ''}`;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
