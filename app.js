@@ -1078,9 +1078,9 @@ function renderAgendamento() {
                     
                     if (res) {
                         const profText = res.prof || 'Ocupado';
-                        row += `<td class="slot-cell"><button class="slot-btn slot-occupied" data-space="${space}" data-week="${weekId}" data-legacy-week="${legacyWeekId}" data-key="${key}" data-date="${dateLabel}" data-time="${time}" title="${profText}">${profText}</button></td>`;
+                        row += `<td class="slot-cell"><button class="slot-btn slot-occupied" data-space="${space}" data-week="${weekId}" data-key="${key}" data-date="${dateLabel}" data-time="${time}" title="${profText}">${profText}</button></td>`;
                     } else {
-                        row += `<td class="slot-cell"><button class="slot-btn slot-free" data-space="${space}" data-week="${weekId}" data-legacy-week="${legacyWeekId}" data-key="${key}" data-date="${dateLabel}" data-time="${time}">Livre</button></td>`;
+                        row += `<td class="slot-cell"><button class="slot-btn slot-free" data-space="${space}" data-week="${weekId}" data-key="${key}" data-date="${dateLabel}" data-time="${time}">Livre</button></td>`;
                     }
                 });
                 row += '</tr>';
