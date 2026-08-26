@@ -1001,19 +1001,19 @@ function getWeekId(offset) {
     const monday = new Date(today.getFullYear(), today.getMonth(), diff);
     monday.setHours(0, 0, 0, 0);
     monday.setDate(monday.getDate() + (offset * 7));
-    const y = monday.getFullYear();
-    const m = String(monday.getMonth() + 1).padStart(2, '0');
-    const d = String(monday.getDate()).padStart(2, '0');
-    return `W_${y}_${m}_${d}`;
+    return `W${monday.getTime()}`;
 }
 
-function getLegacyWeekId(offset) {
+function getFormattedWeekId(offset) {
     const today = new Date(), day = today.getDay();
     const diff = today.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(today.getFullYear(), today.getMonth(), diff);
     monday.setHours(0, 0, 0, 0);
     monday.setDate(monday.getDate() + (offset * 7));
-    return `W${monday.getTime()}`;
+    const y = monday.getFullYear();
+    const m = String(monday.getMonth() + 1).padStart(2, '0');
+    const d = String(monday.getDate()).padStart(2, '0');
+    return `W_${y}_${m}_${d}`;
 }
 
 let currentSlotBooking = null;
@@ -1025,10 +1025,16 @@ function renderAgendamento() {
     if (!space) return;
     
     const weekId = getWeekId(currentWeekOffset);
-    const legacyWeekId = getLegacyWeekId(currentWeekOffset);
-    const weekObj = (agendamentoState && (agendamentoState[weekId] || agendamentoState[legacyWeekId])) || {};
-    const matchingKey = Object.keys(weekObj).find(k => k.toLowerCase().trim() === space.toLowerCase().trim()) || space;
-    const weekData = weekObj[matchingKey] || {};
+    const altWeekId = getFormattedWeekId(currentWeekOffset);
+    const weekObj1 = (agendamentoState && agendamentoState[weekId]) || {};
+    const weekObj2 = (agendamentoState && agendamentoState[altWeekId]) || {};
+    
+    const findSpaceData = (obj) => {
+        if (!obj) return {};
+        const matchingKey = Object.keys(obj).find(k => k.toLowerCase().trim() === space.toLowerCase().trim()) || space;
+        return obj[matchingKey] || {};
+    };
+    const weekData = { ...findSpaceData(weekObj2), ...findSpaceData(weekObj1) };
     
     // Feriados Nacionais Fixos
     const feriados = { '01-01': 'Ano Novo', '01-05': 'Dia do Trabalho', '07-09': 'Independência', '12-10': 'N. Sra. Ap.', '02-11': 'Finados', '15-11': 'República', '25-12': 'Natal' };
@@ -1161,14 +1167,15 @@ window.saveSlotBooking = function() {
 };
 
 window.openCancelModal = function(space, weekId, timeKey, dateLabel, timeLabel) {
-    const legacyWeekId = getLegacyWeekId(currentWeekOffset);
-    const actualWeekKey = (agendamentoState && agendamentoState[weekId]) ? weekId : legacyWeekId;
+    const altWeekId = getFormattedWeekId(currentWeekOffset);
+    const actualWeekKey = (agendamentoState && agendamentoState[weekId]) ? weekId : altWeekId;
     const weekObj = (agendamentoState && agendamentoState[actualWeekKey]) || {};
-    const weekData = weekObj[space] || {};
+    const matchingKey = Object.keys(weekObj).find(k => k.toLowerCase().trim() === space.toLowerCase().trim()) || space;
+    const weekData = weekObj[matchingKey] || {};
     const res = weekData[timeKey];
     if (!res) return;
 
-    currentSlotCancel = { space, actualWeekKey, timeKey, res };
+    currentSlotCancel = { space: matchingKey, actualWeekKey, timeKey, res };
     if (safeGet('modal-cancelar-agendamento')) {
         if (safeGet('modal-cancel-space-info')) safeGet('modal-cancel-space-info').innerText = space;
         if (safeGet('modal-cancel-datetime-info')) safeGet('modal-cancel-datetime-info').innerText = `${dateLabel} - ${timeLabel}`;
