@@ -1027,7 +1027,8 @@ function renderAgendamento() {
     const weekId = getWeekId(currentWeekOffset);
     const legacyWeekId = getLegacyWeekId(currentWeekOffset);
     const weekObj = (agendamentoState && (agendamentoState[weekId] || agendamentoState[legacyWeekId])) || {};
-    const weekData = weekObj[space] || {};
+    const matchingKey = Object.keys(weekObj).find(k => k.toLowerCase().trim() === space.toLowerCase().trim()) || space;
+    const weekData = weekObj[matchingKey] || {};
     
     // Feriados Nacionais Fixos
     const feriados = { '01-01': 'Ano Novo', '01-05': 'Dia do Trabalho', '07-09': 'Independência', '12-10': 'N. Sra. Ap.', '02-11': 'Finados', '15-11': 'República', '25-12': 'Natal' };
